@@ -4,7 +4,7 @@ from app.identify.domain.interface.IPasswordHasher import IPasswordHasher
 from app.identify.domain.interface.IUserRepository import IUserRepository
 
 
-class UserGetUseCase:
+class UserGetWithEmailUseCase:
     def __init__(
         self,
         user_repo: IUserRepository,
@@ -14,7 +14,7 @@ class UserGetUseCase:
         self._hasher = _hasher
 
     async def __call__(self, email, password) -> User:
-        result = await self._user_repo.read(email)
+        result = await self._user_repo.read_with_email(email)
         if not result:
             raise UserNotFoundError
 

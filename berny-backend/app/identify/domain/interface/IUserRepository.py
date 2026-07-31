@@ -10,7 +10,11 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def read(self, email: str) -> User:
+    async def read_with_email(self, email: str) -> User:
+        pass
+
+    @abstractmethod
+    async def read_with_id(self, user_id: UUID) -> User:
         pass
 
     @abstractmethod

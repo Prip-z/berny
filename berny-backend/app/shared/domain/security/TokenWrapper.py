@@ -11,30 +11,32 @@ class JWTWrapper:
     def encode_access(payload_id: UUID) -> str:
         EXPIRATION_TIME = datetime.now(timezone.utc) + timedelta(minutes=30)
         payload = {
-             "sub": str(payload_id), 
-             "type": "access",
-             "exp": int(EXPIRATION_TIME.timestamp())
-             }
+            "sub": str(payload_id),
+            "type": "access",
+            "exp": int(EXPIRATION_TIME.timestamp()),
+        }
         return jwt.encode(
             payload,
             settings.SECRET_JWT,
         )
-    
+
     @staticmethod
     def encode_refresh(payload_id: UUID) -> str:
-            EXPIRATION_TIME = datetime.now(timezone.utc) + timedelta(days=7)
-            payload = {
-                 "sub": str(payload_id), 
-                 "type": "refresh",
-                 "exp": int(EXPIRATION_TIME.timestamp())
-                 }
-            return jwt.encode(
-                payload,
-                settings.SECRET_JWT,
-            )
+        EXPIRATION_TIME = datetime.now(timezone.utc) + timedelta(days=7)
+        payload = {
+            "sub": str(payload_id),
+            "type": "refresh",
+            "exp": int(EXPIRATION_TIME.timestamp()),
+        }
+        return jwt.encode(
+            payload,
+            settings.SECRET_JWT,
+        )
 
     @staticmethod
     def decode(token: str) -> dict:
+        if not token:
+            raise InvalidToken
         try:
             data = jwt.decode(token, settings.SECRET_JWT, algorithms=["HS256"])
         except jwt.ExpiredSignatureError:

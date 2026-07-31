@@ -5,14 +5,16 @@ from uuid import UUID
 from app.identify.api.dependencies import (
     get_user_create_usecase,
     get_user_delete_usecase,
-    get_user_get_usecase,
     get_user_update_usecase,
+    get_user_with_email_usecase,
 )
 from app.identify.api.schemas.AuthSchema import AuthResponse, TokenPair
 from app.identify.api.schemas.UserSchema import UserCreate, UserLogin, UserResponse
 from app.identify.application.user.UserCreateUseCase import UserCreateUseCase
 from app.identify.application.user.UserDeleteUseCase import UserDeleteUseCase
-from app.identify.application.user.UserGetUseCase import UserGetUseCase
+from app.identify.application.user.UserGetWithEmailUseCase import (
+    UserGetWithEmailUseCase,
+)
 from app.identify.application.user.UserUpdateUseCase import UserUpdateUseCase
 from app.identify.domain.entity.User import UserUpdateData
 from app.identify.domain.exception import (
@@ -20,7 +22,7 @@ from app.identify.domain.exception import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
-from app.identify.infrastructure.security.TokenWrapper import JWTWrapper
+from app.shared.domain.security.TokenWrapper import JWTWrapper
 from fastapi import APIRouter, Depends, HTTPException, status
 
 identify_router = APIRouter(prefix="/identify")
@@ -33,7 +35,7 @@ identify_router = APIRouter(prefix="/identify")
 )
 async def login_user(
     payload: UserLogin,
-    use_case: Annotated[UserGetUseCase, Depends(get_user_get_usecase)],
+    use_case: Annotated[UserGetWithEmailUseCase, Depends(get_user_with_email_usecase)],
 ):
     try:
         user = await use_case(email=payload.email, password=payload.password)

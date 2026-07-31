@@ -13,7 +13,13 @@ class PostgresUserRepository(IUserRepository):
     def __init__(self, session: AsyncSession):
         self._session: AsyncSession = session
 
-    async def read(self, email: str) -> User:
+    async def read_with_id(self, user_id: UUID) -> User:
+        user = await self._session.get(UserORM, user_id)
+        if not user:
+            raise UserNotFoundError
+        return User.model_validate(user)
+
+    async def read_with_email(self, email: str) -> User:
         query = sqlalchemy.select(UserORM).where(UserORM.email == email)
         user = await self._session.scalar(query)
         if not user:
