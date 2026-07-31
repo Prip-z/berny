@@ -46,3 +46,4 @@ venv
 node_modules
 .vscode
 mypy.ini
+.mypy_cache
