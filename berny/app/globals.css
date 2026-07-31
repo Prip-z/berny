@@ -24,3 +24,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@theme {
+  --color-card: #16191E;
+  --color-google: #EAEAE5;
+  --color-main: #0D0F12;
+  --color-primary: #F0F3F9;
+  --color-accent: #4F46E5;
+  --color-input-authorize: #1E222A;
+  --color-input-search: #5B5B5B;
+}

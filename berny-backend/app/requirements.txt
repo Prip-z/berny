@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+websockets
+snowflake-id
+pydantic-settings 
+pydantic[email]
+python-dotenv
+cassandra-driver
+redis
+sqlalchemy
+alembic
+asyncpg
+bcrypt
+httpx
+jwt
+PyJWT

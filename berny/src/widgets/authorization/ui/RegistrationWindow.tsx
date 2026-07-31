@@ -1,0 +1,108 @@
+"use client";
+
+import { FormButton, GoogleAuthorizeButton } from "@/src/shared/ui/button";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+interface RegistrationWindowProps {
+    onSwitchToLogin: () => void
+}
+
+
+export function RegistrationWindow({onSwitchToLogin}: RegistrationWindowProps) {
+    const [textEmail, setEmail] = useState("");
+    const [textPassword, setPassword] = useState("");
+    const [textUsername, setUsername] = useState("");
+    const router = useRouter();
+
+    const handleAuthorize = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        if ((textEmail.trim() === "") || (textPassword.trim() === "") ) return;
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/identify/api/v1/auth/registration`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    email: textEmail,
+                    password: textPassword,
+                    username: textUsername
+                }),
+            });
+
+            if (!response.ok) {
+                console.error("Ошибка авторизации", response.status)
+            }
+            
+            const data = await response.json()
+
+            localStorage.setItem("accessToken", data.tokens.access_token);
+            localStorage.setItem("refreshToken", data.tokens.refresh_token);
+
+            router.push("/home");
+
+            setEmail("");
+            setPassword("")
+        }
+        catch (error){
+            console.error("Сетевая ошибка")
+        }
+        
+    };
+
+    return (
+        <div className="flex flex-col flex-1 gap-7 px-16.25 pt-12.5">
+            <div className="flex items-center justify-center">
+                <h1 className="font-bold text-4xl">Регистрация в Berny</h1>
+            </div>
+            <div className="flex items-center justify-center">
+                <GoogleAuthorizeButton />
+            </div>
+            <div className="flex items-center justify-center">
+                ------------------ или ------------------
+            </div>
+            <form className="flex flex-col gap-10" onSubmit={handleAuthorize}>
+                <div className="flex flex-col items-left justify-center gap-3">
+                    <span>Username</span>
+                    <input className="bg-input-authorize rounded-lg w-full px-4 h-12" 
+                            value={textUsername}
+                            onChange={(e) => setUsername(e.target.value)}>
+
+                    </input>
+                </div>
+                <div className="flex flex-col items-left justify-center gap-3">
+                    <span>Email</span>
+                    <input className="bg-input-authorize rounded-lg w-full px-4 h-12" 
+                            value={textEmail}
+                            onChange={(e) => setEmail(e.target.value)}>
+
+                    </input>
+                </div>
+                <div className="flex flex-col items-left justify-center gap-3">
+                    <span>Password</span>
+                    <input className="bg-input-authorize rounded-lg  w-full px-4 h-12"
+                            value={textPassword}
+                            onChange={(e) => setPassword(e.target.value)}>
+
+                    </input>
+                </div>
+                <div className="flex items-center justify-center w-full">
+                    <FormButton text="Зарегистрироваться" />
+                </div>
+            </form>
+
+            <div className="flex flex-row items-center justify-center">
+                <span>Есть аккаунта?&nbsp;</span>
+                <button 
+                    type="button" 
+                    onClick={onSwitchToLogin} 
+                    className="text-blue-500 hover:underline cursor-pointer"
+                >
+                    Войти
+                </button>
+            </div>
+
+        </div>
+    )
+}
