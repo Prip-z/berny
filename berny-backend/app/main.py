@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+from app.channels.api.router import channel_router
 from app.identify.api.routers import identify_router
 from app.identify.domain.exception import UserAlreadyExistsError, UserNotFoundError
 from app.messaging.api.dependencies import connection_manager, message_broker, scylla_db
@@ -38,6 +39,7 @@ app.add_middleware(
 )
 app.include_router(websocket_router)
 app.include_router(identify_router)
+app.include_router(channel_router)
 
 
 @app.exception_handler(UserAlreadyExistsError)
