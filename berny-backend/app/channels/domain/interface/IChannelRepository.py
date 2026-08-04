@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
+from app.channels.domain.dto.UserChannel import UserChannel
 from app.channels.domain.entity.Channel import Channel, ChannelUpdateData
 from app.channels.domain.entity.ChannelMembers import ChannelMembers, UserRole
 from app.channels.domain.entity.SearchResultItem import SearchResultItem
@@ -12,7 +13,7 @@ class IChannelRepository(ABC):
         pass
 
     @abstractmethod
-    async def is_member(self, channel_id: UUID, user_id: UUID) -> bool:
+    async def get_user_role(self, channel_id: UUID, user_id: UUID) -> UserRole:
         pass
 
     @abstractmethod
@@ -51,4 +52,14 @@ class IChannelRepository(ABC):
 
     @abstractmethod
     async def delete_channel(self, channel_id: UUID) -> bool:
+        pass
+
+    @abstractmethod
+    async def get_direct_channel_between_users(
+        self, user1_id: UUID, user2_id: UUID
+    ) -> Channel | None:
+        pass
+
+    @abstractmethod
+    async def get_user_channels(self, current_user_id: UUID) -> list[UserChannel]:
         pass

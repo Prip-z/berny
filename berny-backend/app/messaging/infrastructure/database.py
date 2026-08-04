@@ -1,5 +1,6 @@
-from cassandra.cluster import Cluster, Session
 from app.shared.config import settings
+from cassandra.cluster import Cluster, Session
+
 
 class ScyllaDatabase:
     def __init__(self):
@@ -8,7 +9,7 @@ class ScyllaDatabase:
 
     def connect(self):
         self.cluster = Cluster([settings.SCYLLA_IP], port=settings.SCYLLA_PORT)
-        self.session = self.cluster.connect() 
+        self.session = self.cluster.connect()
 
         self._init_keyspace()
         self.session.set_keyspace(settings.SCYLLA_KEYSPACE)
@@ -25,9 +26,9 @@ class ScyllaDatabase:
     def _init_tables(self):
         query = """
         CREATE TABLE IF NOT EXISTS messages (
-            channel_id bigint,
+            channel_id uuid,
             time_bucket text,
-            message_id bigint,
+            message_id uuid,
             sender_id bigint,
             text text,
             created_at timestamp,
@@ -40,4 +41,3 @@ class ScyllaDatabase:
     def close(self):
         if self.cluster:
             self.cluster.shutdown()
-            

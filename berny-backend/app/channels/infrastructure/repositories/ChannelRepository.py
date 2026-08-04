@@ -1,9 +1,14 @@
 from uuid import UUID
 
+from app.channels.domain.dto.UserChannel import UserChannel
 from app.channels.domain.entity.Channel import Channel, ChannelType, ChannelUpdateData
 from app.channels.domain.entity.ChannelMembers import ChannelMembers, UserRole
 from app.channels.domain.entity.SearchResultItem import SearchResultItem
-from app.channels.domain.exception import ChannelNotFound, ChatAlreadyExist
+from app.channels.domain.exception import (
+    ChannelNotFound,
+    ChatAlreadyExist,
+    UserNotInChannel,
+)
 from app.channels.domain.interface.IChannelRepository import IChannelRepository
 from app.channels.infrastructure.models.ChannelMembersModel import (
     ChannelMembersORM,
@@ -155,6 +160,70 @@ class ChannelRepository(IChannelRepository):
         members_orm = result.scalars().all()
         return [ChannelMembers.model_validate(m) for m in members_orm]
 
-    async def is_member(self, channel_id: UUID, user_id: UUID) -> bool:
+    async def get_user_role(self, channel_id: UUID, user_id: UUID) -> UserRole:
         member_orm = await self._session.get(ChannelMembersORM, (channel_id, user_id))
-        return member_orm is not None
+        if not member_orm:
+            raise UserNotInChannel
+        return member_orm.role
+
+    async def get_direct_channel_between_users(
+        self, user1_id: UUID, user2_id: UUID
+    ) -> Channel | None:
+        m1 = aliased(ChannelMembersORM)
+        m2 = aliased(ChannelMembersORM)
+
+        query = (
+            select(ChannelORM)
+            .join(m1.channel_id == ChannelORM.channel_id)
+            .join(m2.channel_id == ChannelORM.channel_id)
+            .where(
+                ChannelORM.type == ChannelType.DIRECT,
+                m1.user_id == user1_id,
+                m2.user_id == user2_id,
+            )
+        )
+
+        result = await self._session.execute(query)
+        channel_orm = result.scalar_one_or_none()
+
+        if not channel_orm:
+            return None
+
+        return Channel.model_validate(channel_orm)
+
+    # НАДО РАЗОБРАТЬСЯ КАК ЭТО РАБОТАЕТ
+    async def get_user_channels(self, current_user_id: UUID) -> list[UserChannel]:
+        my_member = aliased(ChannelMembersORM)
+        other_member = aliased(ChannelMembersORM)
+        other_user = aliased(UserORM)
+
+        stmt = (
+            select(
+                ChannelORM.channel_id,
+                ChannelORM.type,
+                func.coalesce(other_user.username, ChannelORM.name).label("name"),
+                other_user.user_id.label("target_user_id"),
+            )
+            .join(my_member, my_member.channel_id == ChannelORM.channel_id)
+            .where(my_member.user_id == current_user_id)
+            .outerjoin(
+                other_member,
+                (other_member.channel_id == ChannelORM.channel_id)
+                & (other_member.user_id != current_user_id)
+                & (ChannelORM.type == ChannelType.DIRECT),
+            )
+            .outerjoin(other_user, other_user.user_id == other_member.user_id)
+        )
+
+        result = await self._session.execute(stmt)
+        rows = result.mappings().all()
+
+        return [
+            UserChannel(
+                channel_id=row["channel_id"],
+                type=row["type"],
+                name=row["name"],
+                target_user_id=row["target_user_id"],
+            )
+            for row in rows
+        ]

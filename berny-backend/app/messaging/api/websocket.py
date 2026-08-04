@@ -51,4 +51,4 @@ async def new_message(
             "type": "USER_DISCONNECTED",
             "payload": {"client_id": user_id},
         }
-        await connection_manager.broadcast(disconnect_envelope)
+        await connection_manager.send_to_users(disconnect_envelope)

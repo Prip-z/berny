@@ -8,7 +8,7 @@ class UserRole(Enum):
     ADMIN = "admin"
     READER = "reader"
     EDITOR = "editor"
-
+    DIRECT_PARTICIPANT = "direct_paricipant"
 
 class ChannelMembers(BaseModel):
     channel_id: UUID

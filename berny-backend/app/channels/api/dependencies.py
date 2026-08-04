@@ -1,18 +1,21 @@
 from typing import Annotated
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.shared.infrastructure.database import get_db
-from app.channels.infrastructure.repositories.ChannelRepository import ChannelRepository
 from app.channels.application.CRUDUseCase import (
     AddChannelMemberUseCase,
     CreateChannelUseCase,
+    CreateDirectChannelUseCase,
     DeleteChannelUseCase,
     GetChannelByIdUseCase,
     GetChannelMembersUseCase,
     RemoveChannelMemberUseCase,
     UpdateChannelUseCase,
 )
+from app.channels.application.GetUserChannelsUseCase import GetUserChannelsUseCase
+from app.channels.application.SearchChannelUseCase import SearchChannelUseCase
+from app.channels.infrastructure.repositories.ChannelRepository import ChannelRepository
+from app.shared.infrastructure.database import get_db
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 def get_channel_repository(
@@ -61,3 +64,21 @@ def get_get_members_use_case(
     repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
 ) -> GetChannelMembersUseCase:
     return GetChannelMembersUseCase(repo)
+
+
+def get_search_channel_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> SearchChannelUseCase:
+    return SearchChannelUseCase(repo)
+
+
+def get_create_direct_channel_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> CreateDirectChannelUseCase:
+    return CreateDirectChannelUseCase(repo)
+
+
+def get_user_channels_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> GetUserChannelsUseCase:
+    return GetUserChannelsUseCase(repo)
