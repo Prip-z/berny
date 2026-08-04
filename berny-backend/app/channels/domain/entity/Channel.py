@@ -1,7 +1,7 @@
 from enum import Enum
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class ChannelType(Enum):
@@ -11,6 +11,7 @@ class ChannelType(Enum):
 
 
 class Channel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     channel_id: UUID = Field(default_factory=uuid4)
     name: str | None = None
     type: ChannelType

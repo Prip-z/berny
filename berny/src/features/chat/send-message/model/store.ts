@@ -3,8 +3,10 @@ import { MessageType } from "@/src/entities/message";
 import { sendSocketMessage } from "@/src/shared/api/socket";
 
 interface ChatState {
-  messageArray: Array<MessageType>;
-  addMessage: (text: string, senderid: string) => void;
+  messageArray: Array<MessageType>
+  addMessage: (text: string, senderid: string) => void
+  setMessages: (messages: MessageType[]) => void
+  receiveMessage: (message: MessageType) => void
 }
 
 export const useChatStore = create<ChatState>((set) => ({
@@ -31,4 +33,30 @@ export const useChatStore = create<ChatState>((set) => ({
       messageArray: [...state.messageArray, currentMessage],
     }));
   },
+
+  setMessages: (messages) => {
+      set({ messageArray: [...messages] })
+  },
+
+  receiveMessage: (message) => {
+      set((state) => {
+          const hasDeparting = state.messageArray.some(
+              (m) => m.status === 'departing' && m.text === message.text
+          )
+
+          if (hasDeparting) {
+              return {
+                  messageArray: state.messageArray.map((m) =>
+                      m.status === 'departing' && m.text === message.text
+                          ? { ...message, status: 'sent' }
+                          : m
+                  ),
+              }
+          }
+
+          return {
+              messageArray: [...state.messageArray, message],
+          }
+      })
+  }
 }));

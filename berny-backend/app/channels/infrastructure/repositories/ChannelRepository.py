@@ -134,16 +134,20 @@ class ChannelRepository(IChannelRepository):
         return False
 
     async def add_member(
-        self, channel_id: UUID, user_id: UUID, role: UserRole | None = UserRole.READER
-    ) -> ChannelMembers:
-        member_orm = ChannelMembersORM(
-            channel_id=channel_id,
-            user_id=user_id,
-            role=role,
-        )
-        self._session.add(member_orm)
-        await self._session.flush()
-        return ChannelMembers.model_validate(member_orm)
+            self, channel_id: UUID, user_id: UUID, role: UserRole | None = UserRole.READER
+        ) -> ChannelMembers:
+            member_orm = ChannelMembersORM(
+                channel_id=channel_id,
+                user_id=user_id,
+                role=role,
+            )
+            self._session.add(member_orm)
+            await self._session.flush()
+            return ChannelMembers.model_validate({
+                "channel_id": member_orm.channel_id,
+                "user_id": member_orm.user_id,
+                "role": member_orm.role
+            })
 
     async def remove_member(self, channel_id: UUID, user_id: UUID) -> bool:
         member_orm = await self._session.get(ChannelMembersORM, (channel_id, user_id))
@@ -174,8 +178,8 @@ class ChannelRepository(IChannelRepository):
 
         query = (
             select(ChannelORM)
-            .join(m1.channel_id == ChannelORM.channel_id)
-            .join(m2.channel_id == ChannelORM.channel_id)
+            .join(m1, m1.channel_id == ChannelORM.channel_id)
+            .join(m2, m2.channel_id == ChannelORM.channel_id)
             .where(
                 ChannelORM.type == ChannelType.DIRECT,
                 m1.user_id == user1_id,

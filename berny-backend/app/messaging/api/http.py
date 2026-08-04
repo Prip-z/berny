@@ -1,7 +1,3 @@
-from fastapi import APIRouter
-
-message_router = APIRouter(prefix="message")
-
 from typing import Annotated
 from uuid import UUID
 

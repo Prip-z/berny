@@ -10,7 +10,7 @@ from app.identify.domain.exception import (
     UserNotFoundError,
 )
 from app.messaging.api.dependencies import connection_manager, message_broker, scylla_db
-from app.messaging.api.http import message_router
+from app.messaging.api.http import messaging_router
 from app.messaging.api.websocket import router as websocket_router
 from app.shared.exception import AccessDenied
 from fastapi import FastAPI, Request
@@ -22,7 +22,9 @@ from fastapi.responses import JSONResponse
 async def lifespan(app: FastAPI):
     scylla_db.connect()
     broker_task = asyncio.create_task(
-        message_broker.subscribe("chat_events", connection_manager.handle_broker_message)
+        message_broker.subscribe(
+            "chat_events", connection_manager.handle_broker_message
+        )
     )
 
     yield
@@ -48,7 +50,7 @@ app.add_middleware(
 app.include_router(websocket_router)
 app.include_router(identify_router)
 app.include_router(channel_router)
-app.include_router(message_router)
+app.include_router(messaging_router)
 
 
 @app.exception_handler(UserAlreadyExistsError)

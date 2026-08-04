@@ -11,6 +11,7 @@ class UserAuthProvider(str, Enum):
 
 
 class User(BaseModel):
+    
     user_id: UUID = Field(default_factory=uuid4)
     username: str
     email: str

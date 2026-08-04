@@ -1,5 +1,5 @@
 from app.identify.domain.entity.User import User
-from app.shared.domain.interfaces.IPasswordHasher import IPasswordHasher
+from app.identify.domain.interface.IPasswordHasher import IPasswordHasher
 from app.identify.domain.interface.IUserRepository import IUserRepository
 
 

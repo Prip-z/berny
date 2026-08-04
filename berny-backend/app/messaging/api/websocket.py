@@ -47,8 +47,8 @@ async def new_message(
 
     except WebSocketDisconnect:
         connection_manager.disconnect(websocket, user_id=user_id)
-        disconnect_envelope = {
-            "type": "USER_DISCONNECTED",
-            "payload": {"client_id": user_id},
-        }
-        await connection_manager.send_to_users(disconnect_envelope)
+        # disconnect_envelope = {
+        #     "type": "USER_DISCONNECTED",
+        #     "payload": {"client_id": user_id},
+        # }
+        # await connection_manager.handle_broker_message(disconnect_envelope)

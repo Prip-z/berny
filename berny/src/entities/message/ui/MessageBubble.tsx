@@ -1,7 +1,14 @@
 import { MessageType } from "../model/types";
 
 export default function MessageBubble({ text, senderId, timestamp, status }: MessageType) {
-  const isMe = senderId === "user_123";
+  const token = localStorage.getItem('accessToken')
+  let userId = null
+  if (token) {
+      const payloadBase64 = token.split('.')[1]
+      const decodedPayload = JSON.parse(atob(payloadBase64))
+      userId = decodedPayload.user_id
+  }
+  const isMe = senderId === userId;
   const statusMessage = () => {
     if (status == "departing") {
       return (

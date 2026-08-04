@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.identify.domain.entity.User import User, UserUpdateData
-from app.shared.domain.interfaces.IPasswordHasher import IPasswordHasher
+from app.identify.domain.interface.IPasswordHasher import IPasswordHasher
 from app.identify.domain.interface.IUserRepository import IUserRepository
 
 
@@ -23,7 +23,7 @@ class UserUpdateUseCase:
         email: str | None = None,
         last_seen: datetime | None = None,
     ) -> User | None:
-        password_hash = self._hasher.hash(password) if password else None
+        password_hash = await self._hasher.hash(password) if password else None
 
         changes = UserUpdateData(
             email=email,

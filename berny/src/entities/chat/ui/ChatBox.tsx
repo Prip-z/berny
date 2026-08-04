@@ -1,11 +1,12 @@
 interface ChatBoxProps {
-    name: string,
-    lastMessage?: string,
+    name: string
+    lastMessage?: string
+    onClick?: () => void
 }
 
-export function ChatBox({name, lastMessage}: ChatBoxProps) {
+export function ChatBox({ name, lastMessage, onClick }: ChatBoxProps) {
     return (
-        <button className="flex flex-row px-7.5 py-5 gap-5 ">
+        <button onClick={onClick} className="flex flex-row px-7.5 py-5 gap-5">
             <div className="w-12 h-12 rounded-full bg-blue-500"></div>
             <div className="flex flex-col flex-1">
                 <p>{name}</p>
