@@ -28,8 +28,8 @@ class ScyllaDatabase:
         CREATE TABLE IF NOT EXISTS messages (
             channel_id uuid,
             time_bucket text,
-            message_id uuid,
-            sender_id bigint,
+            message_id bigint,
+            sender_id uuid,
             text text,
             created_at timestamp,
             PRIMARY KEY ((channel_id, time_bucket), message_id)

@@ -12,5 +12,4 @@ def get_current_user_payload(
     token: Annotated[str, Depends(oauth2_scheme)],
 ):
     token_data = JWTWrapper.decode(token)
-    user_id_from_token = token_data.get("sub")
-    return UUID(user_id_from_token)
+    return token_data

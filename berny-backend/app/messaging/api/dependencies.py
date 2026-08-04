@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from app.messaging.application.GetChannelMessagesUseCase import (
     GetChannelMessagesUseCase,
 )
@@ -11,11 +13,12 @@ from app.messaging.infrastructure.PostgresChannelAccessValidator import (
 from app.messaging.infrastructure.repositories import ScyllaMessageRepository
 from app.shared.domain.security.TokenWrapper import JWTWrapper
 from app.shared.infrastructure.database import get_db
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
 message_broker = MessageBroker()
 scylla_db = ScyllaDatabase()
 connection_manager = ConnectionManager()
-access_validator = PostgresChannelAccesValidator(get_db)
 
 
 def get_scylla_repo() -> ScyllaMessageRepository:
@@ -28,10 +31,21 @@ def get_message_broker() -> MessageBroker:
     return message_broker
 
 
-def get_send_message_use_case() -> SendMessagingUseCase:
-    repo = get_scylla_repo()
+def get_access_validator(
+    session: Annotated[AsyncSession, Depends(get_db)],
+) -> PostgresChannelAccesValidator:
+    return PostgresChannelAccesValidator(session)
+
+
+def get_send_message_use_case(
+    repo: Annotated[ScyllaMessageRepository, Depends(get_scylla_repo)],
+    broker: Annotated[MessageBroker, Depends(get_message_broker)],
+    access_validator: Annotated[
+        PostgresChannelAccesValidator, Depends(get_access_validator)
+    ],
+) -> SendMessagingUseCase:
     return SendMessagingUseCase(
-        repo=repo, broker=message_broker, access_validator=access_validator
+        repo=repo, broker=broker, access_validator=access_validator
     )
 
 
@@ -39,5 +53,10 @@ def get_validate_token():
     return JWTWrapper.decode
 
 
-def get_channel_messages_use_case() -> GetChannelMessagesUseCase:
-    return GetChannelMessagesUseCase(get_scylla_repo(), access_validator)
+def get_channel_messages_use_case(
+    repo: Annotated[ScyllaMessageRepository, Depends(get_scylla_repo)],
+    access_validator: Annotated[
+        PostgresChannelAccesValidator, Depends(get_access_validator)
+    ],
+) -> GetChannelMessagesUseCase:
+    return GetChannelMessagesUseCase(repo, access_validator)

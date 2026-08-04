@@ -22,16 +22,15 @@ class SendMessagingUseCase:
         self.access_validator = access_validator
 
     async def __call__(self, sender_id: UUID, channel_id: UUID, text: str) -> Message:
-        has_access = self.access_validator.can_send_message(user_id=sender_id, channel_id=channel_id)
+        has_access = await self.access_validator.can_send_message(
+            user_id=sender_id, channel_id=channel_id
+        )
         if not has_access:
             raise AccessDenied
         message_id = get_snowflake_id()
 
         message = Message(
-            message_id=message_id, 
-            channel_id=channel_id, 
-            sender_id=sender_id, 
-            text=text
+            message_id=message_id, channel_id=channel_id, sender_id=sender_id, text=text
         )
 
         await self.repo.save(message)
@@ -40,7 +39,7 @@ class SendMessagingUseCase:
         payload = {
             "target_user_ids": [str(uid) for uid in member_ids],
             "event_type": "NEW_MESSAGE",
-            "payload": message.model_dump(mode="json")
+            "payload": message.model_dump(mode="json"),
         }
         await self.broker.publishMessage("chat_events", payload)
 

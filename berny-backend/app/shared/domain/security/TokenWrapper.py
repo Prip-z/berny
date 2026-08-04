@@ -34,13 +34,16 @@ class JWTWrapper:
         )
 
     @staticmethod
-    def decode(token: str) -> dict:
+    def decode(token: str) -> UUID:
         if not token:
             raise InvalidToken
         try:
             data = jwt.decode(token, settings.SECRET_JWT, algorithms=["HS256"])
+            user_id = data.get("sub") or data.get("user_id") or data.get("id")
+            if not user_id:
+                raise InvalidToken("User ID not found in token")
+            return UUID(str(user_id))
         except jwt.ExpiredSignatureError:
             raise TokenExpired("Token Expired")
-        except jwt.InvalidTokenError:
+        except (jwt.InvalidTokenError, ValueError, TypeError):
             raise InvalidToken("InvalidToken")
-        return data

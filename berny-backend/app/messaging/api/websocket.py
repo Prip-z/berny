@@ -1,6 +1,7 @@
 import json
 import traceback
 from typing import Annotated, Any
+from uuid import UUID
 
 from app.identify.domain.exception import InvalidToken
 from app.messaging.api.dependencies import (
@@ -13,9 +14,10 @@ from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 router = APIRouter(prefix="/ws")
 
 
-@router.websocket("/")
+@router.websocket("/{channel_id}")
 async def new_message(
     websocket: WebSocket,
+    channel_id: UUID,
     use_case: Annotated[Any, Depends(get_send_message_use_case)],
     jwt_validator: Annotated[Any, Depends(get_validate_token)],
 ):
@@ -37,8 +39,8 @@ async def new_message(
                 payload = event.get("payload", {})
                 try:
                     await use_case(
-                        sender_id=int(user_id),
-                        channel_id=payload.get("channel_id", 1),
+                        sender_id=user_id,
+                        channel_id=channel_id,
                         text=payload.get("text", ""),
                     )
                 except Exception:
