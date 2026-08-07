@@ -2,13 +2,24 @@
 
 import {InputMessage} from "@/src/shared/ui/input";
 import { FormButton } from "@/src/shared/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChatStore } from "../model/store";
 
 export default function SendMessageForm() {
   const [text, setText] = useState("");
-  //МОК
-  const currentUserId = "user_123";
+  const [currentUserId, setCurrentUserId] = useState(() => {
+    if (typeof window === "undefined") return ""
+    const token = localStorage.getItem('accessToken')
+    if (!token) return ""
+    try {
+        const payloadBase64 = token.split('.')[1]
+        const decodedPayload = JSON.parse(atob(payloadBase64))
+        return decodedPayload.sub || ""
+    } catch {
+        return ""
+    }
+})
+
   const addMessage = useChatStore((state) => state.addMessage);
 
   const handleSendMessage = (e: React.FormEvent<HTMLFormElement>) => {

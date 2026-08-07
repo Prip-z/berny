@@ -195,7 +195,6 @@ class ChannelRepository(IChannelRepository):
 
         return Channel.model_validate(channel_orm)
 
-    # НАДО РАЗОБРАТЬСЯ КАК ЭТО РАБОТАЕТ
     async def get_user_channels(self, current_user_id: UUID) -> list[UserChannel]:
         my_member = aliased(ChannelMembersORM)
         other_member = aliased(ChannelMembersORM)
@@ -221,7 +220,6 @@ class ChannelRepository(IChannelRepository):
 
         result = await self._session.execute(stmt)
         rows = result.mappings().all()
-
         return [
             UserChannel(
                 channel_id=row["channel_id"],

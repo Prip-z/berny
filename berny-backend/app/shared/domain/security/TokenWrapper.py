@@ -9,7 +9,7 @@ from app.shared.config import settings
 class JWTWrapper:
     @staticmethod
     def encode_access(payload_id: UUID) -> str:
-        EXPIRATION_TIME = datetime.now(timezone.utc) + timedelta(minutes=30)
+        EXPIRATION_TIME = datetime.now(timezone.utc) + timedelta(minutes=720)
         payload = {
             "sub": str(payload_id),
             "type": "access",

@@ -16,6 +16,7 @@ export function ChatWindow() {
   const setMessages = useChatStore((state) => state.setMessages)
   useEffect(() => {
     const addMessageUnsubscribe = socketSubscribe("NEW_MESSAGE", (rawPayload: unknown) => {
+      console.log(rawPayload)
       const parsed = MessageSchema.safeParse(rawPayload)
       if (!parsed.success) {
         console.error("Invalid TYPING payload:", parsed.error.format());
@@ -40,12 +41,12 @@ export function ChatWindow() {
         const rawData = await response.json()
 
         const formattedMessages = rawData.map((msg: any) => ({
-            id: String(msg.message_id),
-            senderId: msg.sender_id,
+            message_id: String(msg.message_id),
+            sender_id: msg.sender_id,
             text: msg.text, 
-            timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            created_at: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             status: "sent"
-        }))
+        })).reverse()
         setMessages(formattedMessages)
       }
       loadData()
@@ -64,7 +65,7 @@ export function ChatWindow() {
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
         {messageArray.map((msg: MessageType) => (
           <MessageBubble
-            key={msg.id}
+            key={msg.message_id}
             {...msg}
           />
         ))}

@@ -145,4 +145,5 @@ async def get_my_channels(
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
     use_case: Annotated[GetUserChannelsUseCase, Depends(get_user_channels_use_case)],
 ):
+    
     return await use_case(current_user_id=current_user_id)

@@ -31,4 +31,9 @@ class ConnectionManager:
         data = json.loads(raw_data)
         target_user_ids = [UUID(uid) for uid in data.get("target_user_ids", [])]
         payload = data.get("payload")
-        await self._send_to_users(target_users=target_user_ids, json_message=payload)
+        type = data.get("event_type")
+        envelope = {
+            "type": type,
+            "payload": payload,
+        }
+        await self._send_to_users(target_users=target_user_ids, json_message=envelope)

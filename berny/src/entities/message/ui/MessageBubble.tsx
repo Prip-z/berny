@@ -1,14 +1,15 @@
+"use client"
 import { MessageType } from "../model/types";
 
-export default function MessageBubble({ text, senderId, timestamp, status }: MessageType) {
+export default function MessageBubble({ text, sender_id, created_at, status }: MessageType) {
   const token = localStorage.getItem('accessToken')
-  let userId = null
+  let user_id = null
   if (token) {
       const payloadBase64 = token.split('.')[1]
       const decodedPayload = JSON.parse(atob(payloadBase64))
-      userId = decodedPayload.user_id
+      user_id = decodedPayload.sub
   }
-  const isMe = senderId === userId;
+  const isMe = sender_id === user_id;
   const statusMessage = () => {
     if (status == "departing") {
       return (
@@ -32,6 +33,17 @@ export default function MessageBubble({ text, senderId, timestamp, status }: Mes
       )
     }
   }
+  let timeOnMessage
+  const timePattern = /^\d{2}:\d{2}$/;
+  if (timePattern.test(created_at)) {
+    timeOnMessage = created_at
+  }
+  else {
+    const dateInstance = new Date(created_at)
+    const timeOnly = dateInstance.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    timeOnMessage = timeOnly
+  }
+  
 
   return (
     <div className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
@@ -50,7 +62,7 @@ export default function MessageBubble({ text, senderId, timestamp, status }: Mes
           className={`text-[15px] self-end 
             ${isMe ? "text-blue-200" : "text-gray-400"}`} 
         >
-          {statusMessage()} {timestamp} 
+          {statusMessage()} {timeOnMessage} 
         </span>
       </div>
 

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from uuid import UUID
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field, computed_field, field_serializer
 
 
 class Message(BaseModel):
@@ -15,3 +15,7 @@ class Message(BaseModel):
     @computed_field
     def time_bucket(self) -> str:
         return self.created_at.strftime("%Y-%m")
+
+    @field_serializer("message_id")
+    def serialize_message_id(self, value: int) -> str:
+        return str(value)

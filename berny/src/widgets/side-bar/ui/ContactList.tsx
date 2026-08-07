@@ -10,11 +10,12 @@ export function ContactList() {
     
     useEffect(() => {
         fetchChannels()
+
     }, [fetchChannels])
 
     return (
-    <div className="w-170 flex-col h-full border-r border-black">
-        <div className=" border-b border-black py-5 px-5">
+    <div className="w-170 flex-col h-full border-r border-black bg-chat-list">
+        <div className="py-5 px-5">
             <SearchContactForm />
         </div>
         <div className="flex flex-col flex-1 overflow-y-auto">

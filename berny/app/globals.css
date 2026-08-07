@@ -33,4 +33,7 @@ body {
   --color-accent: #4F46E5;
   --color-input-authorize: #1E222A;
   --color-input-search: #5B5B5B;
+  --color-chat-none: #474545;
+  --color-chat-list: #272727;
+  --color-chatbox-hover: #4C4C4C
 }

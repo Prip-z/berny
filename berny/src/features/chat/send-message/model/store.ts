@@ -21,10 +21,10 @@ export const useChatStore = create<ChatState>((set) => ({
     const newStatus = "departing"
 
     const currentMessage: MessageType = {
-      id: messageUuid,
-      senderId: senderId,
+      message_id: messageUuid,
+      sender_id: senderId,
       text: text,
-      timestamp: currentTime,
+      created_at: currentTime,
       status: newStatus,
     };
 
