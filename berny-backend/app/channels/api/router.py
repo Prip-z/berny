@@ -7,6 +7,7 @@ from app.channels.api.dependencies import (
     get_create_channel_use_case,
     get_create_direct_channel_use_case,
     get_delete_channel_use_case,
+    get_direct_channel_between_users_use_case,
     get_get_members_use_case,
     get_remove_member_use_case,
     get_search_channel_use_case,
@@ -21,6 +22,7 @@ from app.channels.application.CRUDUseCase import (
     DeleteChannelUseCase,
     GetChannelByIdUseCase,
     GetChannelMembersUseCase,
+    GetDirectChannelBetweenUsers,
     RemoveChannelMemberUseCase,
     UpdateChannelUseCase,
 )
@@ -39,7 +41,7 @@ channel_router = APIRouter(prefix="/channels", tags=["Channels"])
 async def search_channel(
     use_case: Annotated[SearchChannelUseCase, Depends(get_search_channel_use_case)],
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
-    search_query: str = "", 
+    search_query: str = "",
 ):
     return await use_case(current_user_id, search_query)
 
@@ -147,3 +149,19 @@ async def get_my_channels(
 ):
 
     return await use_case(current_user_id=current_user_id)
+
+
+@channel_router.get(
+    "/direct/{target_user_search_query}", response_model=list[UserChannelResponse]
+)
+async def get_direct_channel_between_user(
+    current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
+    use_case: Annotated[
+        GetDirectChannelBetweenUsers, Depends(get_direct_channel_between_users_use_case)
+    ],
+    target_user_search_query: UUID,
+):
+
+    return await use_case(
+        current_user_id=current_user_id, target_user_id=target_user_search_query
+    )

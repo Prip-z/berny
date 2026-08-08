@@ -7,6 +7,7 @@ from app.channels.application.CRUDUseCase import (
     DeleteChannelUseCase,
     GetChannelByIdUseCase,
     GetChannelMembersUseCase,
+    GetDirectChannelBetweenUsers,
     RemoveChannelMemberUseCase,
     UpdateChannelUseCase,
 )
@@ -82,3 +83,8 @@ def get_user_channels_use_case(
     repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
 ) -> GetUserChannelsUseCase:
     return GetUserChannelsUseCase(repo)
+
+def get_direct_channel_between_users_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> GetDirectChannelBetweenUsers:
+    return GetDirectChannelBetweenUsers(repo)

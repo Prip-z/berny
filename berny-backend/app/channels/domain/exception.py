@@ -12,3 +12,6 @@ class UserNotInChannel(Exception):
 
 class InvalidChannelType(Exception):
     pass
+
+class ChannelIsNotExist(Exception):
+    pass

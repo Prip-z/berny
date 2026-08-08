@@ -2,7 +2,7 @@ from uuid import UUID
 
 from app.channels.domain.entity.Channel import Channel, ChannelType, ChannelUpdateData
 from app.channels.domain.entity.ChannelMembers import ChannelMembers, UserRole
-from app.channels.domain.exception import InvalidChannelType
+from app.channels.domain.exception import ChannelIsNotExist, InvalidChannelType
 from app.channels.domain.interface.IChannelRepository import IChannelRepository
 from app.shared.exception import AccessDenied
 
@@ -138,3 +138,21 @@ class CreateDirectChannelUseCase:
         )
 
         return created_channel
+
+class GetDirectChannelBetweenUsers:
+    def __init__(self, channel_repo: IChannelRepository):
+        self._channel_repo = channel_repo
+
+    async def __call__(
+        self, current_user_id: UUID, target_user_id: UUID
+    ) -> Channel:
+        if current_user_id == target_user_id:
+            raise ValueError("Cannot create a direct chat with yourself")
+
+        existing_channel = await self._channel_repo.get_direct_channel_between_users(
+            current_user_id, target_user_id
+        )
+        if existing_channel:
+            return existing_channel
+        else:
+            raise ChannelIsNotExist

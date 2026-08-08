@@ -2,6 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from app.channels.api.router import channel_router
+from app.channels.domain.exception import ChannelIsNotExist
 from app.identify.api.routers import identify_router
 from app.identify.domain.exception import (
     InvalidToken,
@@ -76,3 +77,8 @@ async def token_expired(request: Request, exc: TokenExpired):
 @app.exception_handler(AccessDenied)
 async def access_denied(request: Request, exc: AccessDenied):
     return JSONResponse(status_code=403, content={"detail": str(exc)})
+
+
+@app.exception_handler(ChannelIsNotExist)
+async def channel_is_not_exist(request: Request, exc: ChannelIsNotExist):
+    return JSONResponse(status_code=404, content={"detail": str(exc)})

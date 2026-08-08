@@ -55,6 +55,39 @@ export function ContactList() {
         console.log(showSearch)
     }
 
+    const handlePushSearchResult = async (target_user_search_query: string) => {
+        const token = localStorage.getItem('accessToken')
+    
+        try {
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/channels/direct/${target_user_search_query}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })               
+            if (response.status == 404) {
+                response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/channels/direct/${target_user_search_query}`, {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })  
+                const result = await response.json()
+                setActiveChannelId(result.channel_id)
+            }
+            else {
+                const result = await response.json()
+                setActiveChannelId(result.channel_id)
+            }
+
+
+        }
+        catch {
+            console.log("ПИЗДЕЦ")
+        }
+
+
+    }
+
     return (
         <div className="w-170 flex-col h-full border-r border-black bg-chat-list px-5 py-5">
             <div className="flex flex-col flex-1 overflow-y-auto">
@@ -69,7 +102,7 @@ export function ContactList() {
                         <ChatBox 
                             key={item.target_user_id}
                             name={item.title}
-                            onClick={() => null}
+                            onClick={() => handlePushSearchResult(item.target_user_id)}
                         />
                     ))
                 ) : (
