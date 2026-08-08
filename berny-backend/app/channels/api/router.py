@@ -37,9 +37,9 @@ channel_router = APIRouter(prefix="/channels", tags=["Channels"])
 
 @channel_router.get("/search", response_model=list[SearchResultItem])
 async def search_channel(
-    search_query: str,
     use_case: Annotated[SearchChannelUseCase, Depends(get_search_channel_use_case)],
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
+    search_query: str = "", 
 ):
     return await use_case(current_user_id, search_query)
 
@@ -145,5 +145,5 @@ async def get_my_channels(
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
     use_case: Annotated[GetUserChannelsUseCase, Depends(get_user_channels_use_case)],
 ):
-    
+
     return await use_case(current_user_id=current_user_id)

@@ -1,18 +1,32 @@
 import { ContactListInput } from "@/src/shared/ui/input";
 import { useState } from "react";
+import {useQuery} from "@tanstack/react-query"
+import { channel } from "diagnostics_channel";
+
+interface SearchContactFormProps {
+    onFocus: () => void
+    onBlur:() => void
+    text: string
+    onSearchChange: (text: string) => void
+}
+
+export function SearchContactForm({onFocus, onBlur, text, onSearchChange}: SearchContactFormProps) {
 
 
-export function SearchContactForm() {
-    const [text, setText] = useState("");
+
 
     const handleSearchContact = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (text.trim() === "") return;
-
-        setText("")
     }
 
+
+
     return (
-        <ContactListInput value={text} onChange={setText} placeholder="Поиск"/>
+        <div>
+            <form onSubmit={handleSearchContact}>
+                <ContactListInput value={text} onChange={onSearchChange} placeholder="Поиск" onFocus={onFocus} onBlur={onBlur} />
+            </form>
+        </div>
+        
     )
 }

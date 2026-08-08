@@ -12,9 +12,9 @@ export default function HomePage() {
         }
         else {
             return (
-                <div className="flex w-full justify-center ">
-                    <div className="bg-chat-none font-bold ">
-                        Тут не на что смотреть
+                <div className="flex w-full justify-center px-120 py-120">
+                    <div className="flex w-full h-full justify-center bg-chat-none font-bold text-xl rounded-2xl ">
+                        <p>Выберите, кому хотите написать</p>
                     </div>
                     
                 </div>
