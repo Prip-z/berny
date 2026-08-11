@@ -1,16 +1,13 @@
 "use client"
 import { getAccessToken } from "@/src/shared/lib/storage/auth";
 import { MessageType } from "../model/types";
+import { getCurrentUser, getTimeOnMessage } from "@/src/shared";
 
-export default function MessageBubble({ text, sender_id, created_at, status }: MessageType) {
-  const token = getAccessToken()
-  let user_id = null
-  if (token) {
-      const payloadBase64 = token.split('.')[1]
-      const decodedPayload = JSON.parse(atob(payloadBase64))
-      user_id = decodedPayload.sub
-  }
+export function MessageBubble({ text, sender_id, created_at, status }: MessageType) {
+  let user_id = getCurrentUser()
+  
   const isMe = sender_id === user_id;
+
   const statusMessage = () => {
     if (status == "departing") {
       return (
@@ -34,16 +31,8 @@ export default function MessageBubble({ text, sender_id, created_at, status }: M
       )
     }
   }
-  let timeOnMessage
-  const timePattern = /^\d{2}:\d{2}$/;
-  if (timePattern.test(created_at)) {
-    timeOnMessage = created_at
-  }
-  else {
-    const dateInstance = new Date(created_at)
-    const timeOnly = dateInstance.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    timeOnMessage = timeOnly
-  }
+  
+  const timeOnMessage = getTimeOnMessage(created_at)
 
   return (
     <div className={`flex w-full animate-bubble-appear ${isMe ? "justify-end" : "justify-start"}`}>

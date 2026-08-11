@@ -1,24 +1,15 @@
 "use client";
 
-import {InputMessage} from "@/src/shared/ui/input";
-import { FormButton } from "@/src/shared/ui/button";
+import {getCurrentUser, InputMessage} from "@/src/shared";
+import { FormButton } from "@/src/shared";
 import { useEffect, useState } from "react";
 import { useChatStore } from "../model/store";
 import { getAccessToken } from "@/src/shared/lib/storage/auth";
 
-export default function SendMessageForm() {
+export function SendMessageForm() {
   const [text, setText] = useState("");
   const [currentUserId, setCurrentUserId] = useState(() => {
-    if (typeof window === "undefined") return ""
-    const token = getAccessToken()
-    if (!token) return ""
-    try {
-        const payloadBase64 = token.split('.')[1]
-        const decodedPayload = JSON.parse(atob(payloadBase64))
-        return decodedPayload.sub || ""
-    } catch {
-        return ""
-    }
+    return getCurrentUser()
 })
 
   const addMessage = useChatStore((state) => state.addMessage);

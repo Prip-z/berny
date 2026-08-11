@@ -2,7 +2,7 @@
 
 import { Fetch } from "@/src/shared/api/http";
 import { setTokens } from "@/src/shared/lib/storage/auth";
-import { FormButton, GoogleAuthorizeButton } from "@/src/shared/ui/button";
+import { FormButton, GoogleAuthorizeButton } from "@/src/shared";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";

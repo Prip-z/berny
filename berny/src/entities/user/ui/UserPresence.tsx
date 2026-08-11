@@ -1,4 +1,4 @@
-import { socketSubscribe } from "@/src/shared/api/socket";
+import { socketSubscribe } from "@/src/shared";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 

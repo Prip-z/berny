@@ -1,4 +1,4 @@
-import { useChannelInfoStore } from "@/src/_pages/home/model/store"
+import { useChannelInfoStore } from "@/src/features/chat/model/store"
 
 export function UserProfileButton() {
     const username = useChannelInfoStore((state) => state.name)

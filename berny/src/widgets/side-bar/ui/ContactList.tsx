@@ -1,7 +1,7 @@
-import { useChannelInfoStore } from "@/src/_pages/home/model/store";
+import { useChannelInfoStore } from "@/src/features/chat/model/store";
 import { useChannelsStore } from "@/src/entities/chat/model/store";
 import { ChatBox } from "@/src/entities/chat/ui/ChatBox";
-import { SearchContactForm } from "@/src/features/channel-list/search-contact";
+import { SearchContactForm } from "@/src/features";
 import { Fetch } from "@/src/shared/api/http";
 import { getAccessToken } from "@/src/shared/lib/storage/auth";
 import { useQuery } from "@tanstack/react-query";

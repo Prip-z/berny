@@ -1,6 +1,6 @@
 import { create } from "zustand";
-import { MessageType } from "@/src/entities/message";
-import { sendSocketMessage } from "@/src/shared/api/socket";
+import { MessageType } from "@/src/entities";
+import { sendSocketMessage } from "@/src/shared";
 
 interface ChatState {
   messageArray: Array<MessageType>

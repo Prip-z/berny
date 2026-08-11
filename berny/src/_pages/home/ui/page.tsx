@@ -1,7 +1,7 @@
 import { useChannelsStore } from "@/src/entities/chat/model/store";
-import {ChatWindow} from "@/src/widgets/chat-window/ui";
-import { ContactList } from "@/src/widgets/side-bar/ui";
-import { ChatManagment } from "@/src/widgets/side-bar/ui/ChatManagment";
+import {ChatWindow} from "@/src/widgets";
+import { ContactList } from "@/src/widgets";
+import { ChatManagment } from "@/src/widgets";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {

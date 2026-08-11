@@ -2,7 +2,7 @@
 
 import { useSocketState } from "@/src/shared/api/socket/store";
 
-export default function ConnectionBanner() {
+export function ConnectionBanner() {
   const status = useSocketState((state) => state.status);
 
   if (status === "connecting") {

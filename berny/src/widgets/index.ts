@@ -1,0 +1,5 @@
+export {ContactList} from "./side-bar/ui/ContactList"
+export {ChatManagment} from "./side-bar/ui/ChatManagment"
+export {ChatWindow} from "./chat-window/ui/ChatWindow"
+export {RegistrationWindow} from "./authorization/ui/RegistrationWindow"
+export {AuthorizationWindow} from "./authorization/ui/AuthorizationWindow"

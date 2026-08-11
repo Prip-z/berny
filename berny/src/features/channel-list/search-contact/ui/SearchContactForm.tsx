@@ -1,4 +1,4 @@
-import { ContactListInput } from "@/src/shared/ui/input";
+import { ContactListInput } from "@/src/shared";
 import { useState } from "react";
 import {useQuery} from "@tanstack/react-query"
 import { channel } from "diagnostics_channel";

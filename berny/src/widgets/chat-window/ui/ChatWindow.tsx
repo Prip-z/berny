@@ -1,16 +1,16 @@
 "use client";
 import { Fragment, useEffect, useRef } from "react";
-import { useChatStore } from "@/src/features/chat/send-message/model/store";
-import MessageBubble, { MessageSchema, MessageType } from "@/src/entities/message";
-import SendMessageForm from "@/src/features/chat/send-message/ui";
-import { connectSocket, disconnectSocket, socketSubscribe } from "@/src/shared/api/socket";
-import ConnectionBanner from "@/src/features/connection_status/ui";
-import { UserPresence } from "@/src/entities/user";
-import { TypingIndicator } from "@/src/features/chat/typing-indicator/ui";
-import { useChannelsStore } from "@/src/entities/chat/model/store";
+import { useChatStore } from "@/src/features";
+import {MessageBubble,  MessageSchema, MessageType } from "@/src/entities";
+import {SendMessageForm} from "@/src/features";
+import { connectSocket, disconnectSocket, socketSubscribe } from "@/src/shared";
+import {ConnectionBanner} from "@/src/features";
+import { TypingIndicator } from "@/src/features";
+import { useChannelsStore } from "@/src/entities";
 import { Fetch } from "@/src/shared/api/http";
-import { UserProfileButton } from "@/src/features/user-profile/UserProfileButton";
-import { useChannelInfoStore } from "@/src/_pages/home/model/store";
+import { UserProfileButton } from "@/src/features";
+import { UserPresence } from "@/src/entities";
+import { formatDateHelper, getFormattedTime } from "@/src/shared";
 
 export function ChatWindow() {
   const messageArray = useChatStore((state) => state.messageArray);
@@ -80,34 +80,7 @@ export function ChatWindow() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messageArray]);
 
-  const formatDateHelper = (isoString: string) => {
-    const messageDate = new Date(isoString);
-    if (isNaN(messageDate.getTime())) return "";
 
-    const today = new Date();
-    const targetDate = new Date(messageDate);
-
-    targetDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-
-    const diffDays = Math.round((today.getTime() - targetDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Сегодня";
-    if (diffDays === 1) return "Вчера";
-
-    const options: Intl.DateTimeFormatOptions = { day: "numeric", month: "long" };
-    if (targetDate.getFullYear() !== today.getFullYear()) {
-      options.year = "numeric";
-    }
-
-    return targetDate.toLocaleDateString("ru-RU", options);
-  };
-
-  const getFormattedTime = (isoString: string) => {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString;
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
 
   return (
     <div className="flex flex-col h-screen w-full flex-1 min-w-0 min-h-0 overflow-hidden">

@@ -1,4 +1,4 @@
-import { AuthorizationWindow, RegistrationWindow } from "@/src/widgets/authorization";
+import { AuthorizationWindow, RegistrationWindow } from "@/src/widgets";
 import { useState } from "react";
 
 

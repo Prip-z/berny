@@ -1,4 +1,5 @@
 import { useChannelsStore } from '@/src/entities/chat/model/store';
+import { HamburgerIcon } from '@/src/shared';
 import { Fetch } from '@/src/shared/api/http';
 import { useEffect, useRef, useState } from 'react';
 
@@ -94,16 +95,7 @@ export function ChatManagment() {
         className="mt-2 p-2 rounded transition duration-100 hover:bg-neutral-800 "
         onClick={() => setSidebarIsOpen(true)}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6 stroke-current"
-          viewBox="0 0 24 24"
-          fill="none"
-          strokeWidth="2"
-          strokeLinecap="round"
-        >
-          <path d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
+        <HamburgerIcon />
       </button>
 
       <dialog

@@ -1,7 +1,7 @@
 "use client";
 
 
-import { getBackoffTime } from "../../lib/backoff";
+import { getBackoffTime } from "../../";
 import { getAccessToken } from "../../lib/storage/auth";
 import { socketEmit } from "./emitter";
 import { useSocketState } from "./store";
