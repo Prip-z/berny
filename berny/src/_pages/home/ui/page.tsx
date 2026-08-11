@@ -1,12 +1,12 @@
 import { useChannelsStore } from "@/src/entities/chat/model/store";
+import { useResizible } from "@/src/shared/lib/resizeHandler/resizeHandler";
 import {ChatWindow} from "@/src/widgets";
 import { ContactList } from "@/src/widgets";
 import { ChatManagment } from "@/src/widgets";
 import { useEffect, useState } from "react";
 
 export default function HomePage() {
-    const [sidebarWidth, setSidebarWidth] = useState(270)
-    const [isResizing, setIsResizing] = useState(false)
+    const {sidebarWidth, onMouseDownHandler} = useResizible()
 
     const activeChannelId = useChannelsStore((state) => state.activeChannelId)
 
@@ -26,36 +26,6 @@ export default function HomePage() {
             )
         }
     }
-
-    const onMouseDownHandler = () => {
-        setIsResizing(true)
-    }
-
-    useEffect (() => {
-        if (!isResizing) return;
-
-        const onMouseUpHandler = () => {
-            setIsResizing(false)
-        }
-
-        const onMouseMoveHandler = (e: any) => {
-            const minWidth = 200
-            const maxWidth = 500
-            const leftOffset = 68
-            const position = Math.max(minWidth, Math.min(e.clientX - leftOffset, maxWidth))
-            setSidebarWidth(position)
-
-        }
-
-        window.addEventListener("mousemove", onMouseMoveHandler)
-        window.addEventListener("mouseup", onMouseUpHandler)
-
-
-        return () => {
-            window.removeEventListener("mousemove", onMouseMoveHandler)
-            window.removeEventListener("mouseup", onMouseUpHandler)
-        }
-    }, [isResizing])
 
     return <div className="flex flex-1 flex-row items-center justify-center h-screen w-screen overflow-hidden bg-neutral-900">
         <ChatManagment/>
