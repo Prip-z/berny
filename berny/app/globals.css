@@ -35,7 +35,8 @@ body {
   --color-input-search: #5B5B5B;
   --color-chat-none: #474545;
   --color-chat-list: #272727;
-  --color-chatbox-hover: #4C4C4C
+  --color-chatbox-hover: #4C4C4C;
+  --color-userprofile-button: #272727;
 }
 
 @theme {
@@ -51,4 +52,29 @@ body {
       transform: translateY(0) scale(1);
     }
   }
+}
+
+/* Для Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #525252 #171717;
+}
+
+/* Для Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #171717;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #404040;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }

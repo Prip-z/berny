@@ -63,3 +63,7 @@ class IChannelRepository(ABC):
     @abstractmethod
     async def get_user_channels(self, current_user_id: UUID) -> list[UserChannel]:
         pass
+
+    @abstractmethod
+    async def change_user_role(self, channel_id: UUID, added_user_id: UUID, role: UserRole) -> bool:
+        pass

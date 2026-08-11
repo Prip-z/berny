@@ -9,21 +9,24 @@ from app.channels.api.dependencies import (
     get_delete_channel_use_case,
     get_direct_channel_between_users_use_case,
     get_get_members_use_case,
+    get_remove_member_self_use_case,
     get_remove_member_use_case,
     get_search_channel_use_case,
+    get_update_channel_member_use_case,
     get_update_channel_use_case,
     get_user_channels_use_case,
 )
 from app.channels.api.schemas.response import UserChannelResponse
 from app.channels.application.CRUDUseCase import (
-    AddChannelMemberUseCase,
     CreateChannelUseCase,
     CreateDirectChannelUseCase,
     DeleteChannelUseCase,
     GetChannelByIdUseCase,
     GetChannelMembersUseCase,
     GetDirectChannelBetweenUsers,
+    RemoveChannelMemberSelfUseCase,
     RemoveChannelMemberUseCase,
+    UpdateChannelMemberUseCase,
     UpdateChannelUseCase,
 )
 from app.channels.application.GetUserChannelsUseCase import GetUserChannelsUseCase
@@ -106,7 +109,7 @@ async def add_member(
     channel_id: UUID,
     added_user_id: UUID,
     role: UserRole,
-    use_case: Annotated[AddChannelMemberUseCase, Depends(get_add_member_use_case)],
+    use_case: Annotated[UpdateChannelMemberUseCase, Depends(get_add_member_use_case)],
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
 ):
     return await use_case(
@@ -164,4 +167,36 @@ async def get_direct_channel_between_user(
 
     return await use_case(
         current_user_id=current_user_id, target_user_id=target_user_search_query
+    )
+
+
+@channel_router.patch("/update/{channel_id}", status_code=status.HTTP_202_ACCEPTED)
+async def update_channel_member(
+    current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
+    use_case: Annotated[
+        UpdateChannelMemberUseCase, Depends(get_update_channel_member_use_case)
+    ],
+    channel_id: UUID,
+    target_user_id: UUID,
+    role: UserRole,
+):
+    return await use_case(
+        channel_id=channel_id,
+        added_user_id=target_user_id,
+        current_user_id=current_user_id,
+        role=role,
+    )
+
+@channel_router.delete(
+    "/{channel_id}/members/", status_code=status.HTTP_204_NO_CONTENT
+)
+async def remove_member_self(
+    channel_id: UUID,
+    use_case: Annotated[
+        RemoveChannelMemberSelfUseCase, Depends(get_remove_member_self_use_case)
+    ],
+    current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
+):
+    await use_case(
+        channel_id=channel_id, current_user_id=current_user_id
     )

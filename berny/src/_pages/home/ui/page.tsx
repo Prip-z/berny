@@ -60,7 +60,7 @@ export default function HomePage() {
     return <div className="flex flex-1 flex-row items-center justify-center h-screen w-screen overflow-hidden bg-neutral-900">
         <ChatManagment/>
         <ContactList width={sidebarWidth}/>
-        <div className="w-1 h-full cursor-col-resize select-none transition duration-100 hover:bg-gray-800" onMouseDown={onMouseDownHandler} >
+        <div className="w-0.5 h-screen cursor-col-resize select-none transition duration-100 hover:bg-gray-800" onMouseDown={onMouseDownHandler} >
 
         </div>
         {showChatWindow()}

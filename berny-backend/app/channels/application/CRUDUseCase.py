@@ -73,10 +73,33 @@ class AddChannelMemberUseCase:
         current_user_id: UUID,
         role: UserRole = UserRole.READER,
     ) -> ChannelMembers:
-        role = await self._channel_repo.get_user_role(channel_id, current_user_id)
-        if role == UserRole.READER:
+        current_user_role = await self._channel_repo.get_user_role(
+            channel_id, current_user_id
+        )
+        if current_user_role == UserRole.READER:
             raise AccessDenied
         return await self._channel_repo.add_member(channel_id, added_user_id, role)
+
+
+class UpdateChannelMemberUseCase:
+    def __init__(self, channel_repo: IChannelRepository):
+        self._channel_repo = channel_repo
+
+    async def __call__(
+        self,
+        channel_id: UUID,
+        added_user_id: UUID,
+        current_user_id: UUID,
+        role: UserRole,
+    ) -> bool:
+        current_user_role = await self._channel_repo.get_user_role(
+            channel_id, current_user_id
+        )
+        if current_user_role == UserRole.READER:
+            raise AccessDenied
+        return await self._channel_repo.change_user_role(
+            channel_id, added_user_id, role
+        )
 
 
 class RemoveChannelMemberUseCase:
@@ -90,6 +113,17 @@ class RemoveChannelMemberUseCase:
         if role == UserRole.READER:
             raise AccessDenied
         return await self._channel_repo.remove_member(channel_id, user_id)
+
+
+class RemoveChannelMemberSelfUseCase:
+    def __init__(self, channel_repo: IChannelRepository):
+        self._channel_repo = channel_repo
+
+    async def __call__(self, channel_id: UUID, current_user_id: UUID) -> bool:
+        role = await self._channel_repo.get_user_role(channel_id, current_user_id)
+        if role != None:
+            raise AccessDenied
+        return await self._channel_repo.remove_member(channel_id, current_user_id)
 
 
 class GetChannelMembersUseCase:
@@ -107,13 +141,12 @@ class GetMemberChannelRole:
     async def __call__(self, channel_id: UUID, user_id: UUID):
         return await self._channel_repo.get_user_role(channel_id, user_id)
 
+
 class CreateDirectChannelUseCase:
     def __init__(self, channel_repo: IChannelRepository):
         self._channel_repo = channel_repo
 
-    async def __call__(
-        self, current_user_id: UUID, target_user_id: UUID
-    ) -> Channel:
+    async def __call__(self, current_user_id: UUID, target_user_id: UUID) -> Channel:
         if current_user_id == target_user_id:
             raise ValueError("Cannot create a direct chat with yourself")
 
@@ -139,13 +172,12 @@ class CreateDirectChannelUseCase:
 
         return created_channel
 
+
 class GetDirectChannelBetweenUsers:
     def __init__(self, channel_repo: IChannelRepository):
         self._channel_repo = channel_repo
 
-    async def __call__(
-        self, current_user_id: UUID, target_user_id: UUID
-    ) -> Channel:
+    async def __call__(self, current_user_id: UUID, target_user_id: UUID) -> Channel:
         if current_user_id == target_user_id:
             raise ValueError("Cannot create a direct chat with yourself")
 

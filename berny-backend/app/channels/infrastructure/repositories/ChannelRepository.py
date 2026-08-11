@@ -15,8 +15,8 @@ from app.channels.infrastructure.models.ChannelMembersModel import (
 )
 from app.channels.infrastructure.models.ChannelModel import Channel as ChannelORM
 from app.identify.infrastructure.models.UserModel import User as UserORM
-from sqlalchemy import String, cast, func, literal, select, union_all
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import String, cast, func, literal, select, union_all, update
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
@@ -134,20 +134,22 @@ class ChannelRepository(IChannelRepository):
         return False
 
     async def add_member(
-            self, channel_id: UUID, user_id: UUID, role: UserRole | None = UserRole.READER
-        ) -> ChannelMembers:
-            member_orm = ChannelMembersORM(
-                channel_id=channel_id,
-                user_id=user_id,
-                role=role,
-            )
-            self._session.add(member_orm)
-            await self._session.flush()
-            return ChannelMembers.model_validate({
+        self, channel_id: UUID, user_id: UUID, role: UserRole | None = UserRole.READER
+    ) -> ChannelMembers:
+        member_orm = ChannelMembersORM(
+            channel_id=channel_id,
+            user_id=user_id,
+            role=role,
+        )
+        self._session.add(member_orm)
+        await self._session.flush()
+        return ChannelMembers.model_validate(
+            {
                 "channel_id": member_orm.channel_id,
                 "user_id": member_orm.user_id,
-                "role": member_orm.role
-            })
+                "role": member_orm.role,
+            }
+        )
 
     async def remove_member(self, channel_id: UUID, user_id: UUID) -> bool:
         member_orm = await self._session.get(ChannelMembersORM, (channel_id, user_id))
@@ -229,3 +231,20 @@ class ChannelRepository(IChannelRepository):
             )
             for row in rows
         ]
+
+    async def change_user_role(self, channel_id: UUID, added_user_id: UUID, role: UserRole) -> bool:
+        try:
+            query = (
+                update(ChannelMembersORM)
+                .where(
+                    ChannelMembersORM.user_id == added_user_id,
+                    ChannelMembersORM.channel_id == channel_id
+                )
+                .values(role=role)
+            )
+            await self._session.execute(query)
+            await self._session.commit()
+            return True
+        except SQLAlchemyError:
+            await self._session.rollback()
+            raise

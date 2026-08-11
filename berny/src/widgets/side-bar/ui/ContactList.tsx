@@ -1,3 +1,4 @@
+import { useChannelInfoStore } from "@/src/_pages/home/model/store";
 import { useChannelsStore } from "@/src/entities/chat/model/store";
 import { ChatBox } from "@/src/entities/chat/ui/ChatBox";
 import { SearchContactForm } from "@/src/features/channel-list/search-contact";
@@ -19,9 +20,12 @@ interface ContactListProps {
 
 export function ContactList({width}: ContactListProps) {
     const userChannels = useChannelsStore((state) => state.channels)
-
     const fetchChannels = useChannelsStore((state) => state.fetchChannels)
     const setActiveChannelId = useChannelsStore((state) => state.setActiveChannelId)
+
+    const setName = useChannelInfoStore((state) => state.setName)
+    const channelName = useChannelInfoStore((state) => state.name)
+
     const [text, setText] = useState("")
     const [debouncedQuery, setDebouncedQuery] = useState("")
 
@@ -52,16 +56,18 @@ export function ContactList({width}: ContactListProps) {
             response = await Fetch(`/channels/direct/${target_user_search_query}`)
             const result = await response.json()
             setActiveChannelId(result.channel_id)
+            setName(result.name)
         }
         
         else {
             const result = await response.json()
             setActiveChannelId(result.channel_id)
+            setName(result.name)
         }
     }
 
     return (
-        <div className="shrink-0 flex-col h-full bg-chat-list" style={{width: `${width}px` }}>
+        <div className="shrink-0 flex-col h-screen bg-chat-list" style={{width: `${width}px` }}>
             <div className="flex flex-col flex-1 overflow-y-auto gap-5">
                 
                 <SearchContactForm
@@ -82,7 +88,10 @@ export function ContactList({width}: ContactListProps) {
                             key={channel.channel_id}
                             name={channel.name}
                             lastMessage={channel.last_message_text}
-                            onClick={() => setActiveChannelId(channel.channel_id)}
+                            onClick={() => {
+                                setActiveChannelId(channel.channel_id)
+                                setName(channel.name)
+                            }}
                         />
                     ))
                 )}

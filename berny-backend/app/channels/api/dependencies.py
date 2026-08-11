@@ -1,14 +1,15 @@
 from typing import Annotated
 
 from app.channels.application.CRUDUseCase import (
-    AddChannelMemberUseCase,
     CreateChannelUseCase,
     CreateDirectChannelUseCase,
     DeleteChannelUseCase,
     GetChannelByIdUseCase,
     GetChannelMembersUseCase,
     GetDirectChannelBetweenUsers,
+    RemoveChannelMemberSelfUseCase,
     RemoveChannelMemberUseCase,
+    UpdateChannelMemberUseCase,
     UpdateChannelUseCase,
 )
 from app.channels.application.GetUserChannelsUseCase import GetUserChannelsUseCase
@@ -51,8 +52,8 @@ def get_delete_channel_use_case(
 
 def get_add_member_use_case(
     repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
-) -> AddChannelMemberUseCase:
-    return AddChannelMemberUseCase(repo)
+) -> UpdateChannelMemberUseCase:
+    return UpdateChannelMemberUseCase(repo)
 
 
 def get_remove_member_use_case(
@@ -84,7 +85,19 @@ def get_user_channels_use_case(
 ) -> GetUserChannelsUseCase:
     return GetUserChannelsUseCase(repo)
 
+
 def get_direct_channel_between_users_use_case(
     repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
 ) -> GetDirectChannelBetweenUsers:
     return GetDirectChannelBetweenUsers(repo)
+
+
+def get_update_channel_member_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> UpdateChannelMemberUseCase:
+    return UpdateChannelMemberUseCase(repo)
+
+def get_remove_member_self_use_case(
+    repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
+) -> RemoveChannelMemberSelfUseCase:
+    return RemoveChannelMemberSelfUseCase(repo)
