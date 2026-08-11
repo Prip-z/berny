@@ -1,8 +1,9 @@
 "use client"
+import { getAccessToken } from "@/src/shared/lib/storage/auth";
 import { MessageType } from "../model/types";
 
 export default function MessageBubble({ text, sender_id, created_at, status }: MessageType) {
-  const token = localStorage.getItem('accessToken')
+  const token = getAccessToken()
   let user_id = null
   if (token) {
       const payloadBase64 = token.split('.')[1]

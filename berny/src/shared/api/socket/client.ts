@@ -1,15 +1,15 @@
 "use client";
 
-import { useChannelsStore } from "@/src/entities/chat/model/store";
+
 import { getBackoffTime } from "../../lib/backoff";
+import { getAccessToken } from "../../lib/storage/auth";
 import { socketEmit } from "./emitter";
 import { useSocketState } from "./store";
 
 let socket: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout>
 
-export function connectSocket() {
-    const activeChannelId = useChannelsStore.getState().activeChannelId
+export function connectSocket(activeChannelId: string) {
     if (!activeChannelId) return
     if (socket) {
         socket.close()
@@ -18,7 +18,7 @@ export function connectSocket() {
     const { setStatus, resetAttempt, incrementAttempt } = useSocketState.getState();
     setStatus("connecting")
 
-    const token = localStorage.getItem('accessToken')
+    const token = getAccessToken()
     const protocols = token ? [token] : []
     
     socket = new WebSocket(WEBSOCKET_ADDRESS, protocols)

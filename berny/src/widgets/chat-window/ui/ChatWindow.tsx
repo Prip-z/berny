@@ -3,11 +3,14 @@ import { useEffect } from "react";
 import { useChatStore } from "@/src/features/chat/send-message/model/store";
 import MessageBubble, { MessageSchema, MessageType } from "@/src/entities/message";
 import SendMessageForm from "@/src/features/chat/send-message/ui";
-import { socketSubscribe } from "@/src/shared/api/socket";
+import { connectSocket, disconnectSocket, socketSubscribe } from "@/src/shared/api/socket";
 import ConnectionBanner from "@/src/features/connection_status/ui";
 import { UserPresence } from "@/src/entities/user";
 import { TypingIndicator } from "@/src/features/chat/typing-indicator/ui";
 import { useChannelsStore } from "@/src/entities/chat/model/store";
+import { getAccessToken } from "@/src/shared/lib/storage/auth";
+import { Fetch } from "@/src/shared/api/http";
+import { is } from "zod/v4/locales";
 
 export function ChatWindow() {
   const messageArray = useChatStore((state) => state.messageArray);
@@ -15,47 +18,60 @@ export function ChatWindow() {
   const activeChannelId = useChannelsStore((state) => state.activeChannelId)
   const setMessages = useChatStore((state) => state.setMessages)
   useEffect(() => {
+    if (!activeChannelId) {
+      setMessages([]);
+      return;
+    }
+
+    let isCurrent = true;
+
+    connectSocket(activeChannelId);
+
     const addMessageUnsubscribe = socketSubscribe("NEW_MESSAGE", (rawPayload: unknown) => {
-      console.log(rawPayload)
-      const parsed = MessageSchema.safeParse(rawPayload)
+      const parsed = MessageSchema.safeParse(rawPayload);
       if (!parsed.success) {
-        console.error("Invalid TYPING payload:", parsed.error.format());
+        console.error("Invalid socket payload:", parsed.error.format());
         return;
       }
-
-      const payload = parsed.data; 
-
-      receiveMessage(payload)
+      receiveMessage(parsed.data);
     });
-    if (activeChannelId == null) {
-      setMessages([])
-    }
-    else {
-      async function loadData(){
-        const token = localStorage.getItem('accessToken')
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messaging/channels/${activeChannelId}/messages`, {
-          headers: {
-                Authorization: `Bearer ${token}`
-            }
-          })
-        const rawData = await response.json()
 
-        const formattedMessages = rawData.map((msg: any) => ({
+    async function loadData() {
+      try {
+        const response = await Fetch(`/messaging/channels/${activeChannelId}/messages`);
+        if (!response.ok) return;
+
+        const result = await response.json();
+
+        if (!isCurrent) return;
+
+        const formattedMessages = result
+          .map((msg: any) => ({
             message_id: String(msg.message_id),
             sender_id: msg.sender_id,
-            text: msg.text, 
-            created_at: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            status: "sent"
-        })).reverse()
-        setMessages(formattedMessages)
+            text: msg.text,
+            created_at: new Date(msg.created_at).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            status: "sent",
+          }))
+          .reverse();
+
+        setMessages(formattedMessages);
+      } catch (error) {
+        console.error("Failed to fetch messages:", error);
       }
-      loadData()
     }
+
+    loadData();
+
     return () => {
+      isCurrent = false;
       addMessageUnsubscribe();
+      disconnectSocket();
     };
-    
-  }, [activeChannelId]);
+  }, [activeChannelId, receiveMessage, setMessages]);
 
   return (
     <div className="flex flex-col h-full w-full max-4xl mx-auto overflow-auto">

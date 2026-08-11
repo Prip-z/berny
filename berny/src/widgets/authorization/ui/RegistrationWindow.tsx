@@ -1,5 +1,7 @@
 "use client";
 
+import { Fetch } from "@/src/shared/api/http";
+import { setTokens } from "@/src/shared/lib/storage/auth";
 import { FormButton, GoogleAuthorizeButton } from "@/src/shared/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,7 +21,7 @@ export function RegistrationWindow({onSwitchToLogin}: RegistrationWindowProps) {
         e.preventDefault()
         if ((textEmail.trim() === "") || (textPassword.trim() === "") ) return;
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/identify/api/v1/auth/registration`, {
+            const response = await Fetch(`/identify/api/v1/auth/login/registration`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -29,7 +31,7 @@ export function RegistrationWindow({onSwitchToLogin}: RegistrationWindowProps) {
                     password: textPassword,
                     username: textUsername
                 }),
-            });
+            })            
 
             if (!response.ok) {
                 console.error("Ошибка авторизации", response.status)
@@ -37,8 +39,7 @@ export function RegistrationWindow({onSwitchToLogin}: RegistrationWindowProps) {
             
             const data = await response.json()
 
-            localStorage.setItem("accessToken", data.tokens.access_token);
-            localStorage.setItem("refreshToken", data.tokens.refresh_token);
+            setTokens(data)
 
             router.push("/home");
 

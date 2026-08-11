@@ -4,12 +4,13 @@ import {InputMessage} from "@/src/shared/ui/input";
 import { FormButton } from "@/src/shared/ui/button";
 import { useEffect, useState } from "react";
 import { useChatStore } from "../model/store";
+import { getAccessToken } from "@/src/shared/lib/storage/auth";
 
 export default function SendMessageForm() {
   const [text, setText] = useState("");
   const [currentUserId, setCurrentUserId] = useState(() => {
     if (typeof window === "undefined") return ""
-    const token = localStorage.getItem('accessToken')
+    const token = getAccessToken()
     if (!token) return ""
     try {
         const payloadBase64 = token.split('.')[1]

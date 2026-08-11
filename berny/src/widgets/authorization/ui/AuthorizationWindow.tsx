@@ -1,5 +1,7 @@
 "use client";
 
+import { Fetch } from "@/src/shared/api/http";
+import { setTokens } from "@/src/shared/lib/storage/auth";
 import { FormButton, GoogleAuthorizeButton } from "@/src/shared/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,7 +23,7 @@ export function AuthorizationWindow({onSwitchToRegister}: AuthorizationWindowPro
         e.preventDefault()
         if ((textEmail.trim() === "") || (textPassword.trim() === "") ) return;
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/identify/api/v1/auth/login`, {
+            const response = await Fetch(`/identify/api/v1/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -30,17 +32,16 @@ export function AuthorizationWindow({onSwitchToRegister}: AuthorizationWindowPro
                     email: textEmail,
                     password: textPassword,
                 }),
-            });
+            })
 
             if (response.status == 404) {
                 setErrorMessage("Введен неверный логин или пароль")
                 return
             }
             
-            const data = await response.json();
+            const data = await response.json()
             
-            localStorage.setItem("accessToken", data.tokens.access_token);
-            localStorage.setItem("refreshToken", data.tokens.refresh_token);
+            setTokens(data)
 
             router.push("/home");
 
@@ -81,6 +82,7 @@ export function AuthorizationWindow({onSwitchToRegister}: AuthorizationWindowPro
                     <span>Password</span>
                     <input className="bg-input-authorize rounded-lg  w-full px-4 h-12"
                             value={textPassword}
+                            type="password"
                             onChange={(e) => setPassword(e.target.value)}>
 
                     </input>
