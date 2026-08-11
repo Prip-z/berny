@@ -12,3 +12,7 @@ class UserChannelResponse(BaseModel):
     target_user_id: UUID | None
     last_message_text: str | None = None
     last_message_at: datetime | None = None
+
+class CreateChannelRequest(BaseModel):
+    name: str | None = None
+    channel_type: ChannelType

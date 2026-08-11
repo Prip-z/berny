@@ -8,7 +8,6 @@ export function InputMessage({value, onChange, placeholder}: InputProps) {
     return (
         <input 
         className=" 
-            border border-blue-400 focus:border-blue-500
             text-white
             px-4
             py-2

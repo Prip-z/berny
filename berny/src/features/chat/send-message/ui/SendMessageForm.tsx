@@ -31,7 +31,7 @@ export default function SendMessageForm() {
   };
 
   return (
-    <form className="flex flex-row w-full gap-2 p-4" onSubmit={handleSendMessage}>
+    <form className="flex flex-row w-full gap-2 p-2 bg-chat-list" onSubmit={handleSendMessage}>
       <InputMessage
         value={text}
         onChange={setText}

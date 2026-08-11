@@ -24,7 +24,7 @@ export function ContactList({width}: ContactListProps) {
     const setActiveChannelId = useChannelsStore((state) => state.setActiveChannelId)
 
     const setName = useChannelInfoStore((state) => state.setName)
-    const channelName = useChannelInfoStore((state) => state.name)
+
 
     const [text, setText] = useState("")
     const [debouncedQuery, setDebouncedQuery] = useState("")

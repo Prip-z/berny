@@ -10,6 +10,7 @@ import { TypingIndicator } from "@/src/features/chat/typing-indicator/ui";
 import { useChannelsStore } from "@/src/entities/chat/model/store";
 import { Fetch } from "@/src/shared/api/http";
 import { UserProfileButton } from "@/src/features/user-profile/UserProfileButton";
+import { useChannelInfoStore } from "@/src/_pages/home/model/store";
 
 export function ChatWindow() {
   const messageArray = useChatStore((state) => state.messageArray);
@@ -110,7 +111,7 @@ export function ChatWindow() {
 
   return (
     <div className="flex flex-col h-screen w-full flex-1 min-w-0 min-h-0 overflow-hidden">
-      <UserProfileButton username="vova"/>
+      <UserProfileButton/>
       <ConnectionBanner />
       <UserPresence />
       <TypingIndicator />

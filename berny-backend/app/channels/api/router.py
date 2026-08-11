@@ -16,7 +16,7 @@ from app.channels.api.dependencies import (
     get_update_channel_use_case,
     get_user_channels_use_case,
 )
-from app.channels.api.schemas.response import UserChannelResponse
+from app.channels.api.schemas.response import CreateChannelRequest, UserChannelResponse
 from app.channels.application.CRUDUseCase import (
     CreateChannelUseCase,
     CreateDirectChannelUseCase,
@@ -51,13 +51,11 @@ async def search_channel(
 
 @channel_router.post("/", response_model=Channel, status_code=status.HTTP_201_CREATED)
 async def create_channel(
-    name: str | None,
-    channel_type: ChannelType,
+    body: CreateChannelRequest,
     use_case: Annotated[CreateChannelUseCase, Depends(get_create_channel_use_case)],
     creator_id: Annotated[UUID, Depends(get_current_user_payload)],
 ):
-    return await use_case(name=name, channel_type=channel_type, creator_id=creator_id)
-
+    return await use_case(name=body.name, channel_type=body.channel_type, creator_id=creator_id)
 
 @channel_router.post(
     "/direct/{target_user_id}",
