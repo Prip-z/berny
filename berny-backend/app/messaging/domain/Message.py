@@ -19,3 +19,9 @@ class Message(BaseModel):
     @field_serializer("message_id")
     def serialize_message_id(self, value: int) -> str:
         return str(value)
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, value: datetime) -> str:
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        return value.isoformat().replace("+00:00", "Z")
