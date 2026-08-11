@@ -37,7 +37,7 @@ export default function SendMessageForm() {
         onChange={setText}
         placeholder="Сообщение"
       />
-      <FormButton
+      <FormButton 
         text="Отправить"
       />
     </form>

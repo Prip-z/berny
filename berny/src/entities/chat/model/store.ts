@@ -1,6 +1,4 @@
 import { Fetch } from "@/src/shared/api/http"
-import { connectSocket, disconnectSocket } from "@/src/shared/api/socket"
-import { getAccessToken } from "@/src/shared/lib/storage/auth"
 import { create } from "zustand"
 
 interface ChannelsState {
@@ -14,12 +12,7 @@ export const useChannelsStore = create<ChannelsState>((set) => ({
     channels: [],
     activeChannelId: null,
     fetchChannels: async () => {
-        const token = getAccessToken()
-        const response = await Fetch("/channels/", {
-          headers: {
-                Authorization: `Bearer ${token}`
-            }
-          })
+        const response = await Fetch("/channels/")
         const data = await response.json()
         set({ channels: data })
     },

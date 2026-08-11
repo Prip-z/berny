@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useChatStore } from "@/src/features/chat/send-message/model/store";
 import MessageBubble, { MessageSchema, MessageType } from "@/src/entities/message";
 import SendMessageForm from "@/src/features/chat/send-message/ui";
@@ -17,6 +17,8 @@ export function ChatWindow() {
   const receiveMessage = useChatStore((state) => state.receiveMessage)
   const activeChannelId = useChannelsStore((state) => state.activeChannelId)
   const setMessages = useChatStore((state) => state.setMessages)
+  const messagesEndRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (!activeChannelId) {
       setMessages([]);
@@ -65,7 +67,6 @@ export function ChatWindow() {
     }
 
     loadData();
-
     return () => {
       isCurrent = false;
       addMessageUnsubscribe();
@@ -73,8 +74,12 @@ export function ChatWindow() {
     };
   }, [activeChannelId, receiveMessage, setMessages]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messageArray])
+
   return (
-    <div className="flex flex-col h-full w-full max-4xl mx-auto overflow-auto">
+    <div className="flex flex-col h-full w-full flex-1 min-w-0 overflow-auto">
       <ConnectionBanner />
       <UserPresence />
       <TypingIndicator />
@@ -85,6 +90,7 @@ export function ChatWindow() {
             {...msg}
           />
         ))}
+        <div ref={messagesEndRef} />
       </div>
 
       <SendMessageForm></SendMessageForm>

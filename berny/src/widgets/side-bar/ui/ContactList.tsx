@@ -8,18 +8,16 @@ import { useEffect, useState } from "react";
 
 const searchChannels = async (searchQuery: string) => {
     if (!searchQuery.trim()) return []
-    const token = getAccessToken()
-    const response = await Fetch(`/channels/search?search_query=${encodeURIComponent(searchQuery)}`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    })
+    const response = await Fetch(`/channels/search?search_query=${encodeURIComponent(searchQuery)}`)
     if (!response.ok) { throw new Error('SearchError') }
     return response.json()
 }
 
+interface ContactListProps {
+    width: number
+}
 
-export function ContactList() {
+export function ContactList({width}: ContactListProps) {
     const userChannels = useChannelsStore((state) => state.channels)
 
     const fetchChannels = useChannelsStore((state) => state.fetchChannels)
@@ -48,41 +46,24 @@ export function ContactList() {
 
 
     const handlePushSearchResult = async (target_user_search_query: string) => {
-        const token = getAccessToken()
+        let response = await Fetch(`/channels/direct/${target_user_search_query}`)
 
-        try {
-            let response = await Fetch(`/channels/direct/${target_user_search_query}`, {
-            headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            if (response.status == 404) {
-                response = await Fetch(`/channels/direct/${target_user_search_query}`, {
-                method: "POST",
-                headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
-                const result = await response.json()
-                setActiveChannelId(result.channel_id)
-            }
-            else {
-                const result = await response.json()
-                setActiveChannelId(result.channel_id)
-            }
-
-
+        if (response.status == 404) {
+            response = await Fetch(`/channels/direct/${target_user_search_query}`)
+            const result = await response.json()
+            setActiveChannelId(result.channel_id)
         }
-        catch {
-            console.log("ПИЗДЕЦ")
+        
+        else {
+            const result = await response.json()
+            setActiveChannelId(result.channel_id)
         }
-
-
     }
 
     return (
-        <div className="w-270 flex-col h-full border-r border-black bg-chat-list px-5 py-5">
+        <div className="shrink-0 flex-col h-full bg-chat-list" style={{width: `${width}px` }}>
             <div className="flex flex-col flex-1 overflow-y-auto gap-5">
+                
                 <SearchContactForm
                     text={text}
                     onSearchChange={setText}

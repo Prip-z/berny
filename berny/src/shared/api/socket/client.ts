@@ -7,14 +7,14 @@ import { socketEmit } from "./emitter";
 import { useSocketState } from "./store";
 
 let socket: WebSocket | null = null;
-let reconnectTimer: ReturnType<typeof setTimeout>
+let reconnectTimer: number | undefined;
 
 export function connectSocket(activeChannelId: string) {
     if (!activeChannelId) return
     if (socket) {
         socket.close()
     }
-    const WEBSOCKET_ADDRESS = `ws://172.31.208.1:8000/ws/${activeChannelId}`
+    const WEBSOCKET_ADDRESS = `${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/ws/${activeChannelId}`
     const { setStatus, resetAttempt, incrementAttempt } = useSocketState.getState();
     setStatus("connecting")
 
@@ -27,7 +27,9 @@ export function connectSocket(activeChannelId: string) {
         resetAttempt()
         setStatus("online")
     }
-    socket.onerror = (error) => console.error("Ошибка сокета:", error);
+    socket.onerror = (error) => {
+    console.error("Ошибка сокета:", error, "ReadyState:", socket?.readyState);
+    };
     socket.onmessage = (event) => {
         try {
             const data = JSON.parse(event.data)
@@ -46,7 +48,7 @@ export function connectSocket(activeChannelId: string) {
         }
         setStatus("offline")
         incrementAttempt()
-        reconnectTimer = setTimeout(connectSocket, getBackoffTime(useSocketState.getState().attempt))
+        reconnectTimer = window.setTimeout(connectSocket, getBackoffTime(useSocketState.getState().attempt))
     }
 }
 
@@ -57,9 +59,12 @@ export function disconnectSocket() {
     }
     if (socket) {
         socket.onclose = null;
-        socket.close();
+        socket.onerror = null
+        if (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING) {
+            socket.close();
+            }
         socket = null
-    }
+    } 
     setStatus("offline")
 }
 

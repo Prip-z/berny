@@ -20,7 +20,7 @@ export function SearchContactForm({text, onSearchChange}: SearchContactFormProps
 
 
     return (
-        <div>
+        <div className="  px-5 py-5">
             <form onSubmit={handleSearchContact}>
                 <ContactListInput value={text} onChange={onSearchChange} placeholder="Поиск"/>
             </form>

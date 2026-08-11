@@ -44,10 +44,9 @@ export default function MessageBubble({ text, sender_id, created_at, status }: M
     const timeOnly = dateInstance.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     timeOnMessage = timeOnly
   }
-  
 
   return (
-    <div className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
+    <div className={`flex w-full animate-bubble-appear ${isMe ? "justify-end" : "justify-start"}`}>
       
       <div
         className={`max-w-[70%] rounded-2xl px-4 py-2 flex flex-col gap-1 text-sm shadow-sm

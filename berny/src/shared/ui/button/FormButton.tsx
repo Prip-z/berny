@@ -18,6 +18,7 @@ export function FormButton({text, disabled}: FormButtonProps) {
                         " 
             disabled={disabled}
             type="submit"
+            onMouseDown={(e) => e.preventDefault()}
         >
             {text}
         </button>

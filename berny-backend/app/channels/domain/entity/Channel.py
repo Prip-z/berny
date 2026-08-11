@@ -17,6 +17,7 @@ class Channel(BaseModel):
     type: ChannelType
 
 
+
 class ChannelUpdateData(BaseModel):
     name: str | None = None
     type: ChannelType | None

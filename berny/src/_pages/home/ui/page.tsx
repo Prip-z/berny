@@ -2,9 +2,14 @@ import { useChannelsStore } from "@/src/entities/chat/model/store";
 import {ChatWindow} from "@/src/widgets/chat-window/ui";
 import { ContactList } from "@/src/widgets/side-bar/ui";
 import { ChatManagment } from "@/src/widgets/side-bar/ui/ChatManagment";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
+    const [sidebarWidth, setSidebarWidth] = useState(270)
+    const [isResizing, setIsResizing] = useState(false)
+
     const activeChannelId = useChannelsStore((state) => state.activeChannelId)
+
     const showChatWindow = () => {
         if (activeChannelId)
         {
@@ -12,8 +17,8 @@ export default function HomePage() {
         }
         else {
             return (
-                <div className="flex w-full justify-center px-75 py-120">
-                    <div className="flex w-full h-full justify-center bg-chat-none font-bold text-xl rounded-2xl ">
+                <div className="flex w-full justify-center flex-1">
+                    <div className="flex px-2 py-1 justify-center bg-chat-none font-bold text-l rounded-2xl ">
                         <p>Выберите, кому хотите написать</p>
                     </div>
                     
@@ -21,9 +26,43 @@ export default function HomePage() {
             )
         }
     }
-    return <div className="flex flex-row items-center justify-center h-screen bg-neutral-900">
+
+    const onMouseDownHandler = () => {
+        setIsResizing(true)
+    }
+
+    useEffect (() => {
+        if (!isResizing) return;
+
+        const onMouseUpHandler = () => {
+            setIsResizing(false)
+        }
+
+        const onMouseMoveHandler = (e: any) => {
+            const minWidth = 200
+            const maxWidth = 500
+            const leftOffset = 68
+            const position = Math.max(minWidth, Math.min(e.clientX - leftOffset, maxWidth))
+            setSidebarWidth(position)
+
+        }
+
+        window.addEventListener("mousemove", onMouseMoveHandler)
+        window.addEventListener("mouseup", onMouseUpHandler)
+
+
+        return () => {
+            window.removeEventListener("mousemove", onMouseMoveHandler)
+            window.removeEventListener("mouseup", onMouseUpHandler)
+        }
+    }, [isResizing])
+
+    return <div className="flex flex-1 flex-row items-center justify-center h-screen w-screen overflow-hidden bg-neutral-900">
         <ChatManagment/>
-        <ContactList/>
+        <ContactList width={sidebarWidth}/>
+        <div className="w-1 h-full cursor-col-resize select-none transition duration-100 hover:bg-gray-800" onMouseDown={onMouseDownHandler} >
+
+        </div>
         {showChatWindow()}
 
     </div>
