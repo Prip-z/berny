@@ -15,7 +15,7 @@ from app.channels.infrastructure.models.ChannelMembersModel import (
 )
 from app.channels.infrastructure.models.ChannelModel import Channel as ChannelORM
 from app.identify.infrastructure.models.UserModel import User as UserORM
-from sqlalchemy import String, cast, func, literal, select, union_all, update
+from sqlalchemy import String, cast, func, literal, select, union, update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -28,6 +28,7 @@ class ChannelRepository(IChannelRepository):
     async def search_channel(
         self, search_query: str, current_user_id: UUID
     ) -> list[SearchResultItem]:
+
         stmt_public_channels = (
             select(
                 ChannelORM.channel_id.label("id"),
@@ -37,15 +38,38 @@ class ChannelRepository(IChannelRepository):
                 func.similarity(ChannelORM.name, search_query).label("score"),
             )
             .where(ChannelORM.type == ChannelType.PUBLIC)
+            .where(
+                ChannelORM.channel_id.not_in(
+                    select(ChannelMembersORM.channel_id).where(
+                        ChannelMembersORM.user_id == current_user_id
+                    )
+                )
+            )
             .where(func.similarity(ChannelORM.name, search_query) > 0.2)
         )
 
-        user_channel_members = aliased(ChannelMembersORM)
-        direct_channel = aliased(ChannelORM)
+        m1 = aliased(ChannelMembersORM)
+        m2 = aliased(ChannelMembersORM)
+
+        direct_chats_subq = (
+            select(
+                m2.user_id.label("other_user_id"),
+                m1.channel_id.label("channel_id"),
+            )
+            .select_from(m1)
+            .join(m2, m1.channel_id == m2.channel_id)
+            .join(
+                ChannelORM,
+                (ChannelORM.channel_id == m1.channel_id)
+                & (ChannelORM.type == ChannelType.DIRECT),
+            )
+            .where(m1.user_id == current_user_id)
+            .subquery()
+        )
 
         stmt_users = (
             select(
-                direct_channel.channel_id.label("id"),
+                direct_chats_subq.c.channel_id.label("id"),
                 UserORM.username.label("title"),
                 literal("user_search").label("result_type"),
                 cast(UserORM.user_id, String).label("target_user_id"),
@@ -53,19 +77,7 @@ class ChannelRepository(IChannelRepository):
             )
             .select_from(UserORM)
             .outerjoin(
-                user_channel_members, user_channel_members.user_id == UserORM.user_id
-            )
-            .outerjoin(
-                direct_channel,
-                (direct_channel.channel_id == user_channel_members.channel_id)
-                & (direct_channel.type == ChannelType.DIRECT)
-                & (
-                    direct_channel.channel_id.in_(
-                        select(ChannelMembersORM.channel_id).where(
-                            ChannelMembersORM.user_id == current_user_id
-                        )
-                    )
-                ),
+                direct_chats_subq, direct_chats_subq.c.other_user_id == UserORM.user_id
             )
             .where(UserORM.user_id != current_user_id)
             .where(func.similarity(UserORM.username, search_query) > 0.2)
@@ -87,9 +99,9 @@ class ChannelRepository(IChannelRepository):
             .where(func.similarity(ChannelORM.name, search_query) > 0.2)
         )
 
-        combined_query = union_all(
-            stmt_public_channels, stmt_users, stmt_my_chats
-        ).alias("search_results")
+        combined_query = union(stmt_public_channels, stmt_users, stmt_my_chats).alias(
+            "search_results"
+        )
 
         final_stmt = select(combined_query).order_by(combined_query.c.score.desc())
 
@@ -232,13 +244,15 @@ class ChannelRepository(IChannelRepository):
             for row in rows
         ]
 
-    async def change_user_role(self, channel_id: UUID, added_user_id: UUID, role: UserRole) -> bool:
+    async def change_user_role(
+        self, channel_id: UUID, added_user_id: UUID, role: UserRole
+    ) -> bool:
         try:
             query = (
                 update(ChannelMembersORM)
                 .where(
                     ChannelMembersORM.user_id == added_user_id,
-                    ChannelMembersORM.channel_id == channel_id
+                    ChannelMembersORM.channel_id == channel_id,
                 )
                 .values(role=role)
             )

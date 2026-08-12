@@ -3,6 +3,7 @@ import { ChatBox } from "@/src/entities/chat/ui/ChatBox"
 import { useChannelInfoStore } from "@/src/features/chat/model/store"
 import { Fetch } from "@/src/shared/api/http"
 import { Dialog } from "@/src/shared/ui/dialog/Dialog"
+import { Lupa } from "@/src/shared/ui/icons/lupa"
 import { useQuery } from "@tanstack/react-query"
 import { UUID } from "crypto"
 import { useEffect, useState } from "react"
@@ -79,8 +80,11 @@ export function UserProfileButton() {
                 </div>
             </Dialog>
             <Dialog className="w-100 h-400 bg-input-authorize fixed inset-0 m-auto rounded-2xl" isOpen={addMembersIsOpen} onClose={() => setAddMembersIsOpen(false)}>
-                <input value={text} onChange={(e) => setText(e.target.value)}>
-                </input>
+                <h2 className="text-white pl-7 pt-3 text-xl">Добавить участников</h2>
+                <div className="flex w-full border-b-2 border-white flex-row justify-center pt-5 pl-8 pr-3 gap-3 pb-3">
+                    <Lupa/>
+                    <input className=" text-white w-full focus:outline-none" value={text} onChange={(e) => setText(e.target.value)} placeholder="Поиск"/>
+                </div>
                 {text.trim().length > 0 ? (
                     searchResults.map((item: any) => (
                         <ChatBox

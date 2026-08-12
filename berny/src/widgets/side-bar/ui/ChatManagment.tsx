@@ -1,8 +1,8 @@
-import { useChannelsStore } from '@/src/entities';
+import { useChannelsStore } from '@/src/entities/chat/model/store';
 import { HamburgerIcon } from '@/src/shared';
 import { Fetch } from '@/src/shared/api/http';
 import { Dialog } from '@/src/shared/ui/dialog/Dialog';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export function ChatManagment() {
   const setActiveChannelId = useChannelsStore((state) => state.setActiveChannelId)

@@ -159,9 +159,7 @@ async def get_my_channels(
     return await use_case(current_user_id=current_user_id)
 
 
-@channel_router.get(
-    "/direct/{target_user_search_query}", response_model=list[UserChannelResponse]
-)
+@channel_router.get("/direct/{target_user_search_query}", response_model=Channel)
 async def get_direct_channel_between_user(
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
     use_case: Annotated[
