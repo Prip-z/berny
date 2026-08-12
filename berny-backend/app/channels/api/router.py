@@ -16,8 +16,13 @@ from app.channels.api.dependencies import (
     get_update_channel_use_case,
     get_user_channels_use_case,
 )
-from app.channels.api.schemas.response import CreateChannelRequest, UserChannelResponse
+from app.channels.api.schemas.response import (
+    AddMemberRequest,
+    CreateChannelRequest,
+    UserChannelResponse,
+)
 from app.channels.application.CRUDUseCase import (
+    AddChannelMemberUseCase,
     CreateChannelUseCase,
     CreateDirectChannelUseCase,
     DeleteChannelUseCase,
@@ -31,7 +36,7 @@ from app.channels.application.CRUDUseCase import (
 )
 from app.channels.application.GetUserChannelsUseCase import GetUserChannelsUseCase
 from app.channels.application.SearchChannelUseCase import SearchChannelUseCase
-from app.channels.domain.entity.Channel import Channel, ChannelType, ChannelUpdateData
+from app.channels.domain.entity.Channel import Channel, ChannelUpdateData
 from app.channels.domain.entity.ChannelMembers import ChannelMembers, UserRole
 from app.channels.domain.entity.SearchResultItem import SearchResultItem
 from app.shared.api.dependencies import get_current_user_payload
@@ -55,7 +60,10 @@ async def create_channel(
     use_case: Annotated[CreateChannelUseCase, Depends(get_create_channel_use_case)],
     creator_id: Annotated[UUID, Depends(get_current_user_payload)],
 ):
-    return await use_case(name=body.name, channel_type=body.channel_type, creator_id=creator_id)
+    return await use_case(
+        name=body.name, channel_type=body.channel_type, creator_id=creator_id
+    )
+
 
 @channel_router.post(
     "/direct/{target_user_id}",
@@ -105,15 +113,14 @@ async def delete_channel(
 @channel_router.post("/{channel_id}/members", response_model=ChannelMembers)
 async def add_member(
     channel_id: UUID,
-    added_user_id: UUID,
-    role: UserRole,
-    use_case: Annotated[UpdateChannelMemberUseCase, Depends(get_add_member_use_case)],
+    body: AddMemberRequest,
+    use_case: Annotated[AddChannelMemberUseCase, Depends(get_add_member_use_case)],
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
 ):
     return await use_case(
         channel_id=channel_id,
-        added_user_id=added_user_id,
-        role=role,
+        added_user_id=body.added_user_id,
+        role=body.role,
         current_user_id=current_user_id,
     )
 
@@ -185,9 +192,8 @@ async def update_channel_member(
         role=role,
     )
 
-@channel_router.delete(
-    "/{channel_id}/members/", status_code=status.HTTP_204_NO_CONTENT
-)
+
+@channel_router.delete("/{channel_id}/members/", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_member_self(
     channel_id: UUID,
     use_case: Annotated[
@@ -195,6 +201,4 @@ async def remove_member_self(
     ],
     current_user_id: Annotated[UUID, Depends(get_current_user_payload)],
 ):
-    await use_case(
-        channel_id=channel_id, current_user_id=current_user_id
-    )
+    await use_case(channel_id=channel_id, current_user_id=current_user_id)

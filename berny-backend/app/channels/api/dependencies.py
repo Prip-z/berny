@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from app.channels.application.CRUDUseCase import (
+    AddChannelMemberUseCase,
     CreateChannelUseCase,
     CreateDirectChannelUseCase,
     DeleteChannelUseCase,
@@ -52,8 +53,8 @@ def get_delete_channel_use_case(
 
 def get_add_member_use_case(
     repo: Annotated[ChannelRepository, Depends(get_channel_repository)],
-) -> UpdateChannelMemberUseCase:
-    return UpdateChannelMemberUseCase(repo)
+) -> AddChannelMemberUseCase:
+    return AddChannelMemberUseCase(repo)
 
 
 def get_remove_member_use_case(
